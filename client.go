@@ -1,4 +1,4 @@
-package client
+package kafpc
 
 import (
 	ugrpc "bitbucket.org/subiz/goutils/grpc"
@@ -45,7 +45,7 @@ func NewClient(brokers []string, ip string, port int) *Client {
 }
 
 type Message struct {
-	topic   string
+	path   string
 	payload proto.Message
 	par     int32
 	key     string
@@ -54,7 +54,7 @@ type Message struct {
 var crc32q = crc32.MakeTable(0xD5828281)
 var TimeoutErr = errors.New("kafpc timeout")
 
-func (c *Client) Call(topic string, payload proto.Message, par int32, key string) ([]byte, []byte, error) {
+func (c *Client) Call(path string, payload proto.Message, par int32, key string) ([]byte, []byte, error) {
 	data, err := proto.Marshal(payload)
 	if err != nil {
 		return nil, nil, err
@@ -63,7 +63,7 @@ func (c *Client) Call(topic string, payload proto.Message, par int32, key string
 	req := &pb.Request{Id: rid, ResponseHost: c.host, Body: data}
 
 	mod := crc32.Checksum([]byte(rid), crc32q) % c.size
-	c.sendchan[mod] <- Message{topic, req, par, key}
+	c.sendchan[mod] <- Message{path, req, par, key}
 	for {
 		select {
 		case res := <-c.recvchan[mod]:
@@ -85,7 +85,7 @@ func (c *Client) runSend() {
 		go func(i uint32) {
 			for {
 				mes := <-c.sendchan[i]
-				c.pub.Publish(mes.topic, mes.payload, mes.par, mes.key)
+				c.pub.Publish(mes.path, mes.payload, mes.par, mes.key)
 			}
 		}(i)
 	}

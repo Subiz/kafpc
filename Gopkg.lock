@@ -20,7 +20,8 @@
     "auth",
     "common",
     "kafpc",
-    "lang"
+    "lang",
+    "logan"
   ]
   revision = "ca230b07045ca4bd9b484320083096d42d57f056"
 
@@ -35,6 +36,18 @@
   name = "bitbucket.org/subiz/kafka"
   packages = ["."]
   revision = "744698a9e7f44e8068586d9d99459d29c688bf8f"
+
+[[projects]]
+  branch = "master"
+  name = "bitbucket.org/subiz/logan"
+  packages = ["log"]
+  revision = "4e7da29003ddcdae085247ab1deb0bafb4c5da1e"
+
+[[projects]]
+  branch = "master"
+  name = "bitbucket.org/subiz/map"
+  packages = ["."]
+  revision = "90875618b8ac943fd3e5afcfdcb594422f17d907"
 
 [[projects]]
   branch = "master"
@@ -209,6 +222,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8a8d55f037a65afc99445ad114f46a75b35f30f85b1512858e853d6627505034"
+  inputs-digest = "1f431caa09e428db0b1b84ba3a315337d7f7a5f11f4dd439c2339e2c2f9c476f"
   solver-name = "gps-cdcl"
   solver-version = 1

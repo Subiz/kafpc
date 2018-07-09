@@ -31,11 +31,27 @@
 
 [[constraint]]
   branch = "master"
+  name = "bitbucket.org/subiz/goutils"
+
+[[constraint]]
+  branch = "master"
   name = "bitbucket.org/subiz/header"
 
 [[constraint]]
   branch = "master"
+  name = "bitbucket.org/subiz/id"
+
+[[constraint]]
+  branch = "master"
+  name = "bitbucket.org/subiz/kafka"
+
+[[constraint]]
+  branch = "master"
   name = "bitbucket.org/subiz/logan"
+
+[[constraint]]
+  branch = "master"
+  name = "bitbucket.org/subiz/map"
 
 [[constraint]]
   branch = "master"
@@ -52,6 +68,10 @@
 [[constraint]]
   branch = "master"
   name = "github.com/golang/protobuf"
+
+[[constraint]]
+  name = "google.golang.org/grpc"
+  version = "1.13.0"
 
 [prune]
   go-tests = true

@@ -1,4 +1,4 @@
-package server
+package kafpc
 
 import (
 	"bitbucket.org/subiz/executor"
