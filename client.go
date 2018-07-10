@@ -66,13 +66,14 @@ func (c *Client) Call(path string, payload proto.Message, par int32, key string)
 	for {
 		select {
 		case res := <-c.recvchan[mod]:
+
 			if res.GetRequestId() != rid {
 				continue
 			}
 			if res.GetCode() != 0 {
 				return res.GetBody(), res.GetError(), nil
 			}
-			return req.GetBody(), nil, nil
+			return res.GetBody(), nil, nil
 		case <-time.After(20 * time.Second):
 		}
 		return nil, nil, TimeoutErr
