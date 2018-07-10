@@ -1,12 +1,13 @@
 package kafpc
 
 import (
-	"context"
 	"bitbucket.org/subiz/executor"
+	"bitbucket.org/subiz/goutils/clock"
 	pb "bitbucket.org/subiz/header/kafpc"
 	"bitbucket.org/subiz/logan/log"
 	cmap "bitbucket.org/subiz/map"
 	"bitbucket.org/subiz/squasher"
+	"context"
 	"fmt"
 	"github.com/Shopify/sarama"
 	"github.com/bsm/sarama-cluster"
@@ -161,6 +162,10 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 		return
 	}
 
+	if time.Since(time.Unix(clock.ToSec(req.GetCreated()), 0)) > 1*time.Minute {
+		return
+	}
+
 	body, errb, code := func() (body []byte, errb []byte, code int32) {
 		defer func() {
 			if r := recover(); r != nil {
@@ -183,6 +188,9 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 		return
 	}()
 
+	if time.Since(time.Unix(clock.ToSec(req.GetCreated()), 0)) > 1*time.Minute {
+		return
+	}
 	s.callClient(req.GetResponseHost(), &pb.Response{
 		RequestId: req.GetId(),
 		Body:      body,
@@ -235,7 +243,14 @@ func (s *Server) callClient(host string, resp *pb.Response) {
 	} else {
 		c = ci.(pb.KafpcClient)
 	}
-	c.Reply(context.Background(), resp)
+
+	clientDeadline := time.Now().Add(1 * time.Second)
+	ctx, cancel := context.WithDeadline(context.Background(), clientDeadline)
+
+	go func() {
+		defer cancel()
+		c.Reply(ctx, resp)
+	}()
 }
 
 func (s *Server) dialClient(host string) pb.KafpcClient {
@@ -255,6 +270,6 @@ func dialGrpc(service string) (*grpc.ClientConn, error) {
 	// Enabling WithBlock tells the client to not give up trying to find a server
 	opts = append(opts, grpc.WithBlock())
 	// However, we're still setting a timeout so that if the server takes too long, we still give up
-	opts = append(opts, grpc.WithTimeout(20*time.Second))
+	opts = append(opts, grpc.WithTimeout(2*time.Second))
 	return grpc.Dial(service, opts...)
 }

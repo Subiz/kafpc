@@ -59,7 +59,7 @@ func (c *Client) Call(path string, payload proto.Message, par int32, key string)
 		return nil, nil, err
 	}
 	rid := ID.NewRequestID()
-	req := &pb.Request{Id: rid, ResponseHost: c.host, Body: data, Path: path}
+	req := &pb.Request{Id: rid, ResponseHost: c.host, Body: data, Path: path, Created: time.Now().UnixNano()}
 
 	mod := crc32.Checksum([]byte(rid), crc32q) % c.size
 	c.sendchan[mod] <- Message{req, par, key}

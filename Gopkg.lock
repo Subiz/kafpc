@@ -23,7 +23,7 @@
     "lang",
     "logan"
   ]
-  revision = "ca230b07045ca4bd9b484320083096d42d57f056"
+  revision = "655a23b"
 
 [[projects]]
   branch = "master"
