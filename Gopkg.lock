@@ -10,8 +10,11 @@
 [[projects]]
   branch = "master"
   name = "bitbucket.org/subiz/goutils"
-  packages = ["grpc"]
-  revision = "45e5090f8853cb964cc530e53574961002943232"
+  packages = [
+    "clock",
+    "grpc"
+  ]
+  revision = "104f9308e60ac6ce7f34a72e39bcc2519e14428e"
 
 [[projects]]
   branch = "master"
@@ -23,7 +26,7 @@
     "lang",
     "logan"
   ]
-  revision = "655a23b"
+  revision = "655a23b2b04a4ee0f7dfb13202ce042ae0589da6"
 
 [[projects]]
   branch = "master"
@@ -35,7 +38,7 @@
   branch = "master"
   name = "bitbucket.org/subiz/kafka"
   packages = ["."]
-  revision = "744698a9e7f44e8068586d9d99459d29c688bf8f"
+  revision = "0dabd4a14374edfad2cd3e9a7af7208347f4e519"
 
 [[projects]]
   branch = "master"
@@ -158,7 +161,7 @@
     "internal/timeseries",
     "trace"
   ]
-  revision = "32a936f46389aa10549d60bd7833e54b01685d09"
+  revision = "292b43bbf7cb8d35ddf40f8d5100ef3837cced3f"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -185,7 +188,7 @@
   branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
-  revision = "8b2cc369ab52e0003a878865c9372afdd6ca5c5a"
+  revision = "e92b116572682a5b432ddd840aeaba2a559eeff1"
 
 [[projects]]
   name = "google.golang.org/grpc"
@@ -222,6 +225,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1f431caa09e428db0b1b84ba3a315337d7f7a5f11f4dd439c2339e2c2f9c476f"
+  inputs-digest = "266cb74462f4a4b21945c53b2aee120459162bfd3c91c82000c8658785e1eade"
   solver-name = "gps-cdcl"
   solver-version = 1
