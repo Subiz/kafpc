@@ -1,6 +1,7 @@
 package kafpc
 
 import (
+	"context"
 	"bitbucket.org/subiz/executor"
 	pb "bitbucket.org/subiz/header/kafpc"
 	"bitbucket.org/subiz/logan/log"
@@ -75,6 +76,7 @@ func NewServer(brokers []string, csg string) *Server {
 		consumer:    csm,
 		squashercap: 10000 * 30 * 2,
 		clients:     cmap.New(32),
+		sqmap:       make(map[int32]*squasher.Squasher),
 	}
 	s.exec = executor.NewExecutor(10000, 30, s.handleJob)
 	return s
@@ -202,11 +204,6 @@ func (s *Server) commitloop(par int32, ofsc <-chan int64) {
 			}
 			s.consumer.MarkOffset(&m, "")
 		case <-t.C:
-			s.RLock()
-			if sq := s.sqmap[par]; sq != nil {
-				fmt.Println("Handle status ", par, sq.GetStatus())
-			}
-			s.RUnlock()
 			if changed {
 				s.consumer.CommitOffsets()
 				changed = false
@@ -234,10 +231,11 @@ func (s *Server) callClient(host string, resp *pb.Response) {
 		if c == nil {
 			return
 		}
+		s.clients.Set(host, ci)
 	} else {
 		c = ci.(pb.KafpcClient)
 	}
-	c.Reply(nil, resp)
+	c.Reply(context.Background(), resp)
 }
 
 func (s *Server) dialClient(host string) pb.KafpcClient {
