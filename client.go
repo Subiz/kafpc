@@ -45,7 +45,6 @@ func NewClient(brokers []string, ip string, port int) *Client {
 }
 
 type Message struct {
-	path   string
 	payload proto.Message
 	par     int32
 	key     string
@@ -60,10 +59,10 @@ func (c *Client) Call(path string, payload proto.Message, par int32, key string)
 		return nil, nil, err
 	}
 	rid := ID.NewRequestID()
-	req := &pb.Request{Id: rid, ResponseHost: c.host, Body: data}
+	req := &pb.Request{Id: rid, ResponseHost: c.host, Body: data, Path: path}
 
 	mod := crc32.Checksum([]byte(rid), crc32q) % c.size
-	c.sendchan[mod] <- Message{path, req, par, key}
+	c.sendchan[mod] <- Message{req, par, key}
 	for {
 		select {
 		case res := <-c.recvchan[mod]:
@@ -85,7 +84,7 @@ func (c *Client) runSend() {
 		go func(i uint32) {
 			for {
 				mes := <-c.sendchan[i]
-				c.pub.Publish(mes.path, mes.payload, mes.par, mes.key)
+				c.pub.Publish(pb.Event_Kafpc_Requested.String(), mes.payload, mes.par, mes.key)
 			}
 		}(i)
 	}
