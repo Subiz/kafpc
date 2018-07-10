@@ -231,7 +231,7 @@ func (s *Server) callClient(host string, resp *pb.Response) {
 		if c == nil {
 			return
 		}
-		s.clients.Set(host, ci)
+		s.clients.Set(host, c)
 	} else {
 		c = ci.(pb.KafpcClient)
 	}
