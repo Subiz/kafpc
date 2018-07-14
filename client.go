@@ -1,10 +1,10 @@
 package kafpc
 
 import (
-	ugrpc "bitbucket.org/subiz/goutils/grpc"
-	pb "bitbucket.org/subiz/header/kafpc"
-	"bitbucket.org/subiz/id"
-	"bitbucket.org/subiz/kafka"
+	ugrpc "git.subiz.net/goutils/grpc"
+	pb "git.subiz.net/header/kafpc"
+	"git.subiz.net/idgen"
+	"git.subiz.net/kafka"
 	"context"
 	"errors"
 	"github.com/golang/protobuf/proto"
@@ -58,7 +58,7 @@ func (c *Client) Call(path string, payload proto.Message, par int32, key string)
 	if err != nil {
 		return nil, nil, err
 	}
-	rid := ID.NewRequestID()
+	rid := idgen.NewRequestID()
 	req := &pb.Request{Id: rid, ResponseHost: c.host, Body: data, Path: path, Created: time.Now().UnixNano()}
 
 	mod := crc32.Checksum([]byte(rid), crc32q) % c.size

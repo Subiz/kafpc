@@ -27,35 +27,31 @@
 
 [[constraint]]
   branch = "master"
-  name = "bitbucket.org/subiz/executor"
-
-[[constraint]]
-  branch = "master"
-  name = "bitbucket.org/subiz/goutils"
-
-[[constraint]]
-  branch = "master"
-  name = "bitbucket.org/subiz/header"
-
-[[constraint]]
-  branch = "master"
-  name = "bitbucket.org/subiz/id"
-
-[[constraint]]
-  branch = "master"
-  name = "bitbucket.org/subiz/kafka"
-
-[[constraint]]
-  branch = "master"
   name = "bitbucket.org/subiz/logan"
 
 [[constraint]]
   branch = "master"
-  name = "bitbucket.org/subiz/map"
+  name = "git.subiz.net/executor"
 
 [[constraint]]
   branch = "master"
-  name = "bitbucket.org/subiz/squasher"
+  name = "git.subiz.net/goutils"
+
+[[constraint]]
+  branch = "master"
+  name = "git.subiz.net/header"
+
+[[constraint]]
+  branch = "master"
+  name = "git.subiz.net/idgen"
+
+[[constraint]]
+  branch = "master"
+  name = "git.subiz.net/kafka"
+
+[[constraint]]
+  branch = "master"
+  name = "git.subiz.net/squasher"
 
 [[constraint]]
   name = "github.com/Shopify/sarama"

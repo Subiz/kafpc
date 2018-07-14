@@ -1,12 +1,12 @@
 package kafpc
 
 import (
-	"bitbucket.org/subiz/executor"
-	"bitbucket.org/subiz/goutils/clock"
-	pb "bitbucket.org/subiz/header/kafpc"
+	"git.subiz.net/executor"
+	"git.subiz.net/goutils/clock"
+	pb "git.subiz.net/header/kafpc"
 	"bitbucket.org/subiz/logan/log"
-	cmap "bitbucket.org/subiz/map"
-	"bitbucket.org/subiz/squasher"
+	cmap "git.subiz.net/goutils/map"
+	"git.subiz.net/squasher"
 	"context"
 	"fmt"
 	"github.com/Shopify/sarama"
@@ -65,6 +65,7 @@ func newHandlerConsumer(brokers []string, topic, csg string) *cluster.Consumer {
 		if err == nil {
 			return csm
 		}
+
 		log.Warn(err, "will retry...")
 		time.Sleep(3 * time.Second)
 	}

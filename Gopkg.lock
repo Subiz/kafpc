@@ -3,22 +3,29 @@
 
 [[projects]]
   branch = "master"
-  name = "bitbucket.org/subiz/executor"
-  packages = ["."]
-  revision = "15fd52c0359875dac63d87766215f06477f15b9f"
+  name = "bitbucket.org/subiz/logan"
+  packages = ["log"]
+  revision = "3750e846aafca85e2a8729cecb502a5f0b90213f"
 
 [[projects]]
   branch = "master"
-  name = "bitbucket.org/subiz/goutils"
+  name = "git.subiz.net/executor"
+  packages = ["."]
+  revision = "7d95a0faa3f81997549680a0d730e517347ca0ce"
+
+[[projects]]
+  branch = "master"
+  name = "git.subiz.net/goutils"
   packages = [
     "clock",
-    "grpc"
+    "grpc",
+    "map"
   ]
-  revision = "104f9308e60ac6ce7f34a72e39bcc2519e14428e"
+  revision = "9daac1c8c490781aa50db359dca8b510d0086689"
 
 [[projects]]
   branch = "master"
-  name = "bitbucket.org/subiz/header"
+  name = "git.subiz.net/header"
   packages = [
     "auth",
     "common",
@@ -26,37 +33,25 @@
     "lang",
     "logan"
   ]
-  revision = "655a23b2b04a4ee0f7dfb13202ce042ae0589da6"
+  revision = "f5d7f5c7a587e79a04c4ba87a2eb5b3ebc331af4"
 
 [[projects]]
   branch = "master"
-  name = "bitbucket.org/subiz/id"
+  name = "git.subiz.net/idgen"
   packages = ["."]
-  revision = "adaefac89951da5ad4ee3d02dde767847a0344c8"
+  revision = "98f5b140b4cb9b44648439bb0e734163c159006e"
 
 [[projects]]
   branch = "master"
-  name = "bitbucket.org/subiz/kafka"
+  name = "git.subiz.net/kafka"
   packages = ["."]
-  revision = "0dabd4a14374edfad2cd3e9a7af7208347f4e519"
+  revision = "7ff9a7389c0271d54fd4c25bb2a8bd69a9c527fa"
 
 [[projects]]
   branch = "master"
-  name = "bitbucket.org/subiz/logan"
-  packages = ["log"]
-  revision = "4e7da29003ddcdae085247ab1deb0bafb4c5da1e"
-
-[[projects]]
-  branch = "master"
-  name = "bitbucket.org/subiz/map"
+  name = "git.subiz.net/squasher"
   packages = ["."]
-  revision = "90875618b8ac943fd3e5afcfdcb594422f17d907"
-
-[[projects]]
-  branch = "master"
-  name = "bitbucket.org/subiz/squasher"
-  packages = ["."]
-  revision = "a3e897ea2851fb25932bd4b5bbde5c308af83ce1"
+  revision = "245e8d05235e8113b3e3c5754191bcccca12f7cb"
 
 [[projects]]
   name = "github.com/Shopify/sarama"
@@ -104,7 +99,7 @@
     "ptypes/duration",
     "ptypes/timestamp"
   ]
-  revision = "1325a051a2753cd67556b182843b1b693d0854cd"
+  revision = "70b3af33377e7aa25ae42977bed93cc6b90f0373"
 
 [[projects]]
   branch = "master"
@@ -144,10 +139,10 @@
   revision = "758d96e93935b542e8d1b72a6d1a5e2b7479921a"
 
 [[projects]]
-  branch = "master"
   name = "github.com/thanhpk/randstr"
   packages = ["."]
-  revision = "54b72d72edea0f7ab8190b89c94237730dc6828b"
+  revision = "6d99cbb86c31ca5989281c64d105de7914c28fd2"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -161,7 +156,7 @@
     "internal/timeseries",
     "trace"
   ]
-  revision = "292b43bbf7cb8d35ddf40f8d5100ef3837cced3f"
+  revision = "d0887baf81f4598189d4e12a37c6da86f0bba4d0"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -225,6 +220,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "266cb74462f4a4b21945c53b2aee120459162bfd3c91c82000c8658785e1eade"
+  inputs-digest = "93dc07e34504917b4d1df6defa752ca8f79d668ef2f669f4513b7d24f84bc4a3"
   solver-name = "gps-cdcl"
   solver-version = 1
