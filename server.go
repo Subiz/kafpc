@@ -1,14 +1,14 @@
 package kafpc
 
 import (
-	"git.subiz.net/executor"
-	"git.subiz.net/goutils/clock"
-	pb "git.subiz.net/header/kafpc"
 	"bitbucket.org/subiz/logan/log"
-	cmap "git.subiz.net/goutils/map"
-	"git.subiz.net/squasher"
 	"context"
 	"fmt"
+	"git.subiz.net/executor"
+	"git.subiz.net/goutils/clock"
+	cmap "git.subiz.net/goutils/map"
+	pb "git.subiz.net/header/kafpc"
+	"git.subiz.net/squasher"
 	"github.com/Shopify/sarama"
 	"github.com/bsm/sarama-cluster"
 	"github.com/golang/protobuf/proto"
@@ -47,6 +47,7 @@ type Server struct {
 	sqmap       map[int32]*squasher.Squasher
 	clients     cmap.Map
 	squashercap uint
+	topic       string
 }
 
 type R map[fmt.Stringer]interface{}
@@ -71,9 +72,10 @@ func newHandlerConsumer(brokers []string, topic, csg string) *cluster.Consumer {
 	}
 }
 
-func NewServer(brokers []string, csg string) *Server {
-	csm := newHandlerConsumer(brokers, pb.Event_Kafpc_Requested.String(), csg)
+func NewServer(brokers []string, csg, topic string) *Server {
+	csm := newHandlerConsumer(brokers, topic, csg)
 	s := &Server{
+		topic:       topic,
 		RWMutex:     &sync.RWMutex{},
 		consumer:    csm,
 		squashercap: 10000 * 30 * 2,
@@ -207,7 +209,7 @@ func (s *Server) commitloop(par int32, ofsc <-chan int64) {
 		case o := <-ofsc:
 			changed = true
 			m := sarama.ConsumerMessage{
-				Topic:     pb.Event_Kafpc_Requested.String(),
+				Topic:     s.topic,
 				Offset:    o,
 				Partition: par,
 			}
