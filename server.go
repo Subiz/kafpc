@@ -179,6 +179,10 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 		}()
 
 		ret := hf.function.Call([]reflect.Value{pptr})
+		if req.Forget {
+			return
+		}
+
 		if len(ret) > 0 {
 			body, _ = ret[0].Interface().([]byte)
 		}
@@ -194,6 +198,11 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 	if time.Since(time.Unix(clock.ToSec(req.GetCreated()), 0)) > 1*time.Minute {
 		return
 	}
+
+	if req.Forget {
+		return
+	}
+
 	s.callClient(req.GetResponseHost(), &pb.Response{
 		RequestId: req.GetId(),
 		Body:      body,
