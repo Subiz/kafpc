@@ -1,13 +1,13 @@
 package kafpc
 
 import (
+	"context"
 	"git.subiz.net/errors"
 	ugrpc "git.subiz.net/goutils/grpc"
+	cpb "git.subiz.net/header/common"
 	pb "git.subiz.net/header/kafpc"
 	"git.subiz.net/idgen"
 	"git.subiz.net/kafka"
-	cpb "git.subiz.net/header/common"
-	"context"
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
 	"hash/crc32"
@@ -17,10 +17,11 @@ import (
 )
 
 type Client struct {
-	topic string
+	topic    string
 	pub      *kafka.Publisher
 	sendchan map[uint32]chan Message
 	recvchan map[uint32]chan *pb.Response
+	donesend map[uint32]chan bool
 	host     string
 	size     uint32
 }
@@ -28,19 +29,21 @@ type Client struct {
 func NewClient(brokers []string, ip, topic string, port int) *Client {
 	sendchan := make(map[uint32]chan Message)
 	recvchan := make(map[uint32]chan *pb.Response)
-
+	donesend := make(map[uint32]chan bool)
 	c := &Client{
-		topic: topic,
+		topic:    topic,
 		pub:      kafka.NewPublisher(brokers),
 		sendchan: sendchan,
+		donesend: donesend,
 		recvchan: recvchan,
 		host:     ip + ":" + strconv.Itoa(port),
 		size:     uint32(10000),
 	}
 
 	for i := uint32(0); i < c.size; i++ {
-		sendchan[i] = make(chan Message, 0)
-		recvchan[i] = make(chan *pb.Response, 0)
+		sendchan[i] = make(chan Message)
+		recvchan[i] = make(chan *pb.Response)
+		donesend[i] = make(chan bool)
 	}
 	go c.runSend()
 	go c.runRecv()
@@ -63,16 +66,17 @@ func (c *Client) Call(path string, payload proto.Message, par int32, key string)
 	}
 	rid := idgen.NewRequestID()
 	req := &pb.Request{
-		Id: rid,
+		Id:           rid,
 		ResponseHost: c.host,
-		Body: data,
-		Path: path,
-		Created: time.Now().UnixNano(),
-		Forget: false,
+		Body:         data,
+		Path:         path,
+		Created:      time.Now().UnixNano(),
+		Forget:       false,
 	}
 
 	mod := crc32.Checksum([]byte(rid), crc32q) % c.size
 	c.sendchan[mod] <- Message{req, par, key}
+	<-c.donesend[mod]
 	for {
 		select {
 		case res := <-c.recvchan[mod]:
@@ -96,15 +100,16 @@ func (c *Client) CallAndForget(path string, payload proto.Message, par int32, ke
 	}
 	rid := idgen.NewRequestID()
 	req := &pb.Request{
-		Id: rid,
-		Body: data,
-		Path: path,
+		Id:      rid,
+		Body:    data,
+		Path:    path,
 		Created: time.Now().UnixNano(),
-		Forget: true,
+		Forget:  true,
 	}
 
 	mod := crc32.Checksum([]byte(rid), crc32q) % c.size
 	c.sendchan[mod] <- Message{req, par, key}
+	<-c.donesend[mod]
 	return nil
 }
 
@@ -113,7 +118,12 @@ func (c *Client) runSend() {
 		go func(i uint32) {
 			for {
 				mes := <-c.sendchan[i]
-				c.pub.Publish(c.topic, mes.payload, mes.par, mes.key)
+				func() {
+					defer func() {
+						c.donesend[i] <- true
+					}()
+					c.pub.Publish(c.topic, mes.payload, mes.par, mes.key)
+				}()
 			}
 		}(i)
 	}
