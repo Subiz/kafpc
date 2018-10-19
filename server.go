@@ -1,23 +1,25 @@
 package kafpc
 
 import (
-	"bitbucket.org/subiz/logan/log"
 	"context"
 	"fmt"
+	"os"
+	"os/signal"
+	"reflect"
+	"sync"
+	"time"
+
+	"bitbucket.org/subiz/logan/log"
+	"git.subiz.net/errors"
 	"git.subiz.net/executor"
 	"git.subiz.net/goutils/clock"
 	cmap "git.subiz.net/goutils/map"
 	pb "git.subiz.net/header/kafpc"
 	"git.subiz.net/squasher"
 	"github.com/Shopify/sarama"
-	"github.com/bsm/sarama-cluster"
+	cluster "github.com/bsm/sarama-cluster"
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
-	"os"
-	"os/signal"
-	"reflect"
-	"sync"
-	"time"
 )
 
 type Job struct {
@@ -172,9 +174,9 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 	body, errb, code := func() (body []byte, errb []byte, code int32) {
 		defer func() {
 			if r := recover(); r != nil {
+				errb = []byte(errors.Default(r).Error())
 				body = []byte(fmt.Sprintf("%v", r))
 				code = 5
-				errb = body
 			}
 		}()
 
