@@ -119,6 +119,7 @@ func convertToHandleFunc(handlers R) map[string]handlerFunc {
 
 func (s *Server) Serve(handlers R) error {
 	s.hs = convertToHandleFunc(handlers)
+	endsignal := EndSignal()
 loop:
 	for {
 		select {
@@ -140,7 +141,7 @@ loop:
 			if err != nil {
 				log.Error("kafka error", err)
 			}
-		case <-EndSignal():
+		case <-endsignal:
 			break loop
 		}
 	}
