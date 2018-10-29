@@ -9,10 +9,10 @@ import (
 	"sync"
 	"time"
 
-	"bitbucket.org/subiz/logan/log"
 	"git.subiz.net/errors"
 	"git.subiz.net/executor"
 	"git.subiz.net/goutils/clock"
+	"git.subiz.net/goutils/log"
 	cmap "git.subiz.net/goutils/map"
 	pb "git.subiz.net/header/kafpc"
 	"git.subiz.net/squasher"

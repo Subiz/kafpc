@@ -27,7 +27,7 @@
 
 [[constraint]]
   branch = "master"
-  name = "bitbucket.org/subiz/logan"
+  name = "git.subiz.net/errors"
 
 [[constraint]]
   branch = "master"
@@ -55,11 +55,11 @@
 
 [[constraint]]
   name = "github.com/Shopify/sarama"
-  version = "1.17.0"
+  version = "1.19.0"
 
 [[constraint]]
   name = "github.com/bsm/sarama-cluster"
-  version = "2.1.13"
+  version = "2.1.15"
 
 [[constraint]]
   branch = "master"
@@ -67,7 +67,7 @@
 
 [[constraint]]
   name = "google.golang.org/grpc"
-  version = "1.13.0"
+  version = "1.16.0"
 
 [prune]
   go-tests = true
