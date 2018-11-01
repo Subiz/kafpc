@@ -39,7 +39,7 @@ var TotalDuration = prometheus.NewSummaryVec(
 		Name:      "total_duration",
 		Help:      "Kafpc lag in time",
 	},
-	[]string{"service", "path"},
+	[]string{"service", "path", "success"},
 )
 
 var LagQueueDuration = prometheus.NewSummaryVec(

@@ -101,6 +101,8 @@ func (c *Client) Call(path string, payload proto.Message, par int32, key string)
 			return res.GetBody(), nil, nil
 		case <-time.After(20 * time.Second):
 		}
+		TotalDuration.WithLabelValues(c.service, path, "timeout").
+				Observe(float64(time.Since(time.Unix(0, req.GetCreated())) / 1000000))
 		return nil, nil, TimeoutErr
 	}
 }
