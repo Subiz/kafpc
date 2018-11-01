@@ -76,7 +76,7 @@ func newHandlerConsumer(brokers []string, topic, csg string) *cluster.Consumer {
 	}
 }
 
-func NewServer(service string, brokers []string, csg, topic string, promhost string) *Server {
+func NewServer(service string, brokers []string, csg, topic string) *Server {
 	csm := newHandlerConsumer(brokers, topic, csg)
 	s := &Server{
 		topic:       topic,
