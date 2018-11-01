@@ -98,7 +98,7 @@ func (s *Server) handleJob(job executor.Job) {
 	s.Unlock()
 
 	LagQueueDuration.WithLabelValues(s.service, mes.req.GetPath()).
-		Observe(float64(time.Since(time.Unix(0, mes.received))))
+		Observe(float64(time.Since(time.Unix(0, mes.received)) / 1000000))
 
 	s.callHandler(s.hs, mes.req)
 	sq.Mark(mes.Offset)
@@ -143,7 +143,7 @@ loop:
 			}
 
 			LagInDuration.WithLabelValues(s.service, req.GetPath()).
-				Observe(float64(time.Since(time.Unix(0, req.GetCreated()))))
+				Observe(float64(time.Since(time.Unix(0, req.GetCreated()))) / 1000000)
 
 			received := time.Now().UnixNano()
 			j := executor.Job{Key: string(msg.Key), Data: Job{msg, req, received}}
@@ -198,7 +198,8 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 			if len(errb) > 0 {
 				success = "false"
 			}
-			ProcessDuration.WithLabelValues(s.service, req.GetPath(), success).Observe(float64(time.Since(starttime)))
+			ProcessDuration.WithLabelValues(s.service, req.GetPath(), success).
+				Observe(float64(time.Since(starttime) / 1000000))
 		}()
 
 		ret := hf.function.Call([]reflect.Value{pptr})

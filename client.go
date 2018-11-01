@@ -93,7 +93,7 @@ func (c *Client) Call(path string, payload proto.Message, par int32, key string)
 			}
 			RepCounter.WithLabelValues(c.service, path, haserr).Inc()
 			LagOutDuration.WithLabelValues(c.service, path, haserr).
-				Observe(float64(time.Since(time.Unix(0, res.GetCreated()))))
+				Observe(float64(time.Since(time.Unix(0, res.GetCreated())) / 1000000))
 
 			if res.GetCode() != 0 {
 				return res.GetBody(), res.GetError(), nil
