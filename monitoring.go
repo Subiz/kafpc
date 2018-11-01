@@ -2,10 +2,6 @@ package kafpc
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"log"
-	"net/http"
-	"os"
 )
 
 const servicename = "kafpc"
@@ -71,9 +67,4 @@ func init() {
 	prometheus.MustRegister(LagOutDuration)
 	prometheus.MustRegister(ProcessDuration)
 	prometheus.MustRegister(LagQueueDuration)
-	http.HandleFunc("/metrics", promhttp.Handler().ServeHTTP)
-	host := os.Getenv("KAFPC_MONHOST")
-	if host != "" {
-		log.Fatal(http.ListenAndServe(host, nil))
-	}
 }
