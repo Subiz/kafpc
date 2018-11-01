@@ -142,9 +142,6 @@ loop:
 				continue
 			}
 
-			LagInDuration.WithLabelValues(s.service, req.GetPath()).
-				Observe(float64(time.Since(time.Unix(0, req.GetCreated()))) / 1000000)
-
 			received := time.Now().UnixNano()
 			j := executor.Job{Key: string(msg.Key), Data: Job{msg, req, received}}
 			s.exec.AddJob(j)

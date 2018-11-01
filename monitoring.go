@@ -24,8 +24,8 @@ var RepCounter = prometheus.NewCounterVec(
 	[]string{"service", "path", "success"},
 )
 
-var ProcessDuration = prometheus.NewHistogramVec(
-	prometheus.HistogramOpts{
+var ProcessDuration = prometheus.NewSummaryVec(
+	prometheus.SummaryOpts{
 		Subsystem: servicename,
 		Name:      "processing_duration",
 		Help:      "The process time in seconds.",
@@ -33,10 +33,10 @@ var ProcessDuration = prometheus.NewHistogramVec(
 	[]string{"service", "path", "success"},
 )
 
-var LagInDuration = prometheus.NewSummaryVec(
+var TotalDuration = prometheus.NewSummaryVec(
 	prometheus.SummaryOpts{
 		Subsystem: servicename,
-		Name:      "lag_in_duration",
+		Name:      "total_duration",
 		Help:      "Kafpc lag in time",
 	},
 	[]string{"service", "path"},
@@ -51,20 +51,10 @@ var LagQueueDuration = prometheus.NewSummaryVec(
 	[]string{"service", "path"},
 )
 
-var LagOutDuration = prometheus.NewSummaryVec(
-	prometheus.SummaryOpts{
-		Subsystem: servicename,
-		Name:      "lag_out_duration",
-		Help:      "Kafpc lag out time",
-	},
-	[]string{"service", "path", "success"},
-)
-
 func init() {
 	prometheus.MustRegister(ReqCounter)
 	prometheus.MustRegister(RepCounter)
-	prometheus.MustRegister(LagInDuration)
-	prometheus.MustRegister(LagOutDuration)
 	prometheus.MustRegister(ProcessDuration)
+	prometheus.MustRegister(TotalDuration)
 	prometheus.MustRegister(LagQueueDuration)
 }
