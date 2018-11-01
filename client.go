@@ -17,6 +17,7 @@ import (
 )
 
 type Client struct {
+	service  string
 	topic    string
 	pub      *kafka.Publisher
 	sendchan map[uint32]chan Message
@@ -26,11 +27,12 @@ type Client struct {
 	size     uint32
 }
 
-func NewClient(brokers []string, ip, topic string, port int) *Client {
+func NewClient(service string, brokers []string, ip, topic string, port int) *Client {
 	sendchan := make(map[uint32]chan Message)
 	recvchan := make(map[uint32]chan *pb.Response)
 	donesend := make(map[uint32]chan bool)
 	c := &Client{
+		service:  service,
 		topic:    topic,
 		pub:      kafka.NewPublisher(brokers),
 		sendchan: sendchan,
@@ -60,6 +62,7 @@ var crc32q = crc32.MakeTable(0xD5828281)
 var TimeoutErr = errors.New(500, cpb.E_kafka_rpc_timeout)
 
 func (c *Client) Call(path string, payload proto.Message, par int32, key string) ([]byte, []byte, error) {
+	ReqCounter.WithLabelValues(c.service, path).Inc()
 	data, err := proto.Marshal(payload)
 	if err != nil {
 		return nil, nil, err
@@ -83,6 +86,15 @@ func (c *Client) Call(path string, payload proto.Message, par int32, key string)
 			if res.GetRequestId() != rid {
 				continue
 			}
+
+			haserr := "false"
+			if res.GetCode() != 0 {
+				haserr = "true"
+			}
+			RepCounter.WithLabelValues(c.service, path, haserr).Inc()
+			LagOutDuration.WithLabelValues(c.service, path, haserr).
+				Observe(float64(time.Since(time.Unix(0, res.GetCreated()))))
+
 			if res.GetCode() != 0 {
 				return res.GetBody(), res.GetError(), nil
 			}
@@ -146,5 +158,6 @@ func (c *Client) runRecv() {
 func (c *Client) Reply(_ context.Context, res *pb.Response) (*pb.Empty, error) {
 	mod := crc32.Checksum([]byte(res.GetRequestId()), crc32q) % c.size
 	c.recvchan[mod] <- res
+
 	return new(pb.Empty), nil
 }

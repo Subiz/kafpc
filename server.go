@@ -24,7 +24,8 @@ import (
 
 type Job struct {
 	*sarama.ConsumerMessage
-	req *pb.Request
+	req      *pb.Request
+	received int64
 }
 
 type handlerFunc struct {
@@ -43,6 +44,7 @@ type Consumer interface {
 
 type Server struct {
 	*sync.RWMutex
+	service     string
 	hs          map[string]handlerFunc
 	consumer    Consumer
 	exec        *executor.Executor
@@ -74,10 +76,11 @@ func newHandlerConsumer(brokers []string, topic, csg string) *cluster.Consumer {
 	}
 }
 
-func NewServer(brokers []string, csg, topic string) *Server {
+func NewServer(service string, brokers []string, csg, topic string, promhost string) *Server {
 	csm := newHandlerConsumer(brokers, topic, csg)
 	s := &Server{
 		topic:       topic,
+		service:     service,
 		RWMutex:     &sync.RWMutex{},
 		consumer:    csm,
 		squashercap: 10000 * 30 * 2,
@@ -93,6 +96,10 @@ func (s *Server) handleJob(job executor.Job) {
 	s.Lock()
 	sq := s.createSqIfNotExist(mes.Partition, mes.Offset)
 	s.Unlock()
+
+	LagQueueDuration.WithLabelValues(s.service, mes.req.GetPath()).
+		Observe(float64(time.Since(time.Unix(0, mes.received))))
+
 	s.callHandler(s.hs, mes.req)
 	sq.Mark(mes.Offset)
 }
@@ -134,7 +141,12 @@ loop:
 				log.Error(err)
 				continue
 			}
-			j := executor.Job{Key: string(msg.Key), Data: Job{msg, req}}
+
+			LagInDuration.WithLabelValues(s.service, req.GetPath()).
+				Observe(float64(time.Since(time.Unix(0, req.GetCreated()))))
+
+			received := time.Now().UnixNano()
+			j := executor.Job{Key: string(msg.Key), Data: Job{msg, req, received}}
 			s.exec.AddJob(j)
 		case <-s.consumer.Notifications():
 		case err := <-s.consumer.Errors():
@@ -173,12 +185,20 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 	}
 
 	body, errb, code := func() (body []byte, errb []byte, code int32) {
+		starttime := time.Now()
+
 		defer func() {
 			if r := recover(); r != nil {
 				errb = []byte(errors.Default(r).Error())
 				body = []byte(fmt.Sprintf("%v", r))
 				code = 5
 			}
+
+			success := "true"
+			if len(errb) > 0 {
+				success = "false"
+			}
+			ProcessDuration.WithLabelValues(s.service, req.GetPath(), success).Observe(float64(time.Since(starttime)))
 		}()
 
 		ret := hf.function.Call([]reflect.Value{pptr})
@@ -211,6 +231,8 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 		Body:      body,
 		Error:     errb,
 		Code:      code,
+		Path:      req.GetPath(),
+		Created:   time.Now().UnixNano(),
 	})
 }
 
