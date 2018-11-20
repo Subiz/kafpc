@@ -186,7 +186,11 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 
 		defer func() {
 			if r := recover(); r != nil {
-				errb = []byte(errors.Default(r).Error())
+				if re, ok := r.(error); ok {
+					errb = []byte(errors.Wrap(re, 500, errors.E_unknown).Error())
+				} else {
+					errb = []byte(errors.New(500, errors.E_unknown, fmt.Sprintf("%v", r)).Error())
+				}
 				body = []byte(fmt.Sprintf("%v", r))
 				code = 5
 			}

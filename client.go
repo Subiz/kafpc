@@ -4,7 +4,6 @@ import (
 	"context"
 	"git.subiz.net/errors"
 	ugrpc "git.subiz.net/goutils/grpc"
-	cpb "git.subiz.net/header/common"
 	pb "git.subiz.net/header/kafpc"
 	"git.subiz.net/idgen"
 	"git.subiz.net/kafka"
@@ -59,7 +58,7 @@ type Message struct {
 }
 
 var crc32q = crc32.MakeTable(0xD5828281)
-var TimeoutErr = errors.New(500, cpb.E_kafka_rpc_timeout)
+var TimeoutErr = errors.New(500, errors.E_kafka_rpc_timeout)
 
 func (c *Client) Call(path string, payload proto.Message, par int32, key string) ([]byte, []byte, error) {
 	ReqCounter.WithLabelValues(c.service, path).Inc()
@@ -102,7 +101,7 @@ func (c *Client) Call(path string, payload proto.Message, par int32, key string)
 		case <-time.After(60 * time.Second):
 		}
 		TotalDuration.WithLabelValues(c.service, path, "timeout").
-				Observe(float64(time.Since(time.Unix(0, req.GetCreated())) / 1000000))
+			Observe(float64(time.Since(time.Unix(0, req.GetCreated())) / 1000000))
 		return nil, nil, TimeoutErr
 	}
 }
@@ -110,7 +109,7 @@ func (c *Client) Call(path string, payload proto.Message, par int32, key string)
 func (c *Client) CallAndForget(path string, payload proto.Message, par int32, key string) *errors.Error {
 	data, err := proto.Marshal(payload)
 	if err != nil {
-		return errors.Wrap(err, 500, cpb.E_proto_marshal_error)
+		return errors.Wrap(err, 500, errors.E_proto_marshal_error)
 	}
 	rid := idgen.NewRequestID()
 	req := &pb.Request{
