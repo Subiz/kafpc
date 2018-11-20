@@ -41,15 +41,15 @@
     "logan",
   ]
   pruneopts = "UT"
-  revision = "c9c36d61f1b1a6af8a4b376fde638a22714d7934"
+  revision = "63be7464e2b8ecf83fe474c15f8d448503ee755c"
 
 [[projects]]
   branch = "master"
-  digest = "1:ddc18b51924f8d977549ad5064f2a8a61b52cee4778de74e18de1932a4cbefcf"
+  digest = "1:84124d9ef8cab4384508760773ac3c8c7e1a959b714b2846b1ea5bb1ecc16bec"
   name = "git.subiz.net/idgen"
   packages = ["."]
   pruneopts = "UT"
-  revision = "e61be9c6018b015283de19c3fd1f35032daf828f"
+  revision = "5918a4fddafe319923caf5b0a62194159773c5f6"
 
 [[projects]]
   branch = "master"
@@ -218,22 +218,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:75d447ee7c6dfa97f31adfb4f03ce64edfbac3b5b92cebaee708c590d7069ee8"
-  name = "github.com/thanhpk/baseconv"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "758d96e93935b542e8d1b72a6d1a5e2b7479921a"
-
-[[projects]]
-  branch = "master"
-  digest = "1:9dbea6ebdf1ee47d6e408601ea2457eda8a5eef4dd2db206fcbaa8a96271d244"
-  name = "github.com/thanhpk/randstr"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "c5a0f26468db1b2f953bd3e2364a8af3105cfd2e"
-
-[[projects]]
-  branch = "master"
   digest = "1:6ca51c5d8a610b3da56856df7a8f8f3e075eba8d5f7a4acbadd79b2d2a368054"
   name = "golang.org/x/net"
   packages = [
@@ -332,7 +316,6 @@
     "git.subiz.net/goutils/grpc",
     "git.subiz.net/goutils/log",
     "git.subiz.net/goutils/map",
-    "git.subiz.net/header/common",
     "git.subiz.net/header/kafpc",
     "git.subiz.net/idgen",
     "git.subiz.net/kafka",
