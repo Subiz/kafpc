@@ -61,6 +61,7 @@ var crc32q = crc32.MakeTable(0xD5828281)
 var TimeoutErr = errors.New(500, errors.E_kafka_rpc_timeout)
 
 func (c *Client) Call(path string, param, output proto.Message, key string) error {
+	path = c.service + path
 	ReqCounter.WithLabelValues(c.service, path).Inc()
 	data, err := proto.Marshal(param)
 	if err != nil {

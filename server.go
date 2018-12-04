@@ -125,26 +125,6 @@ func convertToHandlerFunc(prefix string, handler interface{}) map[string]handler
 	return rs
 }
 
-func convertToHandleFunc(handlers R) map[string]handlerFunc {
-	rs := make(map[string]handlerFunc)
-	for k, v := range handlers {
-		f := reflect.ValueOf(v)
-		ptype := f.Type().In(0).Elem()
-
-		pptr := reflect.New(ptype)
-		if _, ok := pptr.Interface().(proto.Message); !ok {
-			panic("wrong handler for topic " + k.String() +
-				". The second param should be type of proto.Message")
-		}
-		ks := ""
-		if k != nil {
-			ks = k.String()
-		}
-		rs[ks] = handlerFunc{paramType: ptype, function: f}
-	}
-	return rs
-}
-
 func (s *Server) register(handler interface{}) {
 	s.hs = convertToHandlerFunc(s.service, handler)
 	endsignal := EndSignal()
@@ -177,39 +157,6 @@ loop:
 	s.consumer.Close()
 }
 
-func (s *Server) Serve(handlers R) error {
-	s.hs = convertToHandleFunc(handlers)
-	endsignal := EndSignal()
-loop:
-	for {
-		select {
-		case msg, more := <-s.consumer.Messages():
-			if !more || msg == nil {
-				break loop
-			}
-
-			req := &pb.Request{}
-			err := proto.Unmarshal(msg.Value, req)
-			if err != nil {
-				log.Error(err)
-				continue
-			}
-
-			received := time.Now().UnixNano()
-			j := executor.Job{Key: string(msg.Key), Data: Job{msg, req, received}}
-			s.exec.AddJob(j)
-		case <-s.consumer.Notifications():
-		case err := <-s.consumer.Errors():
-			if err != nil {
-				log.Error("kafka error", err)
-			}
-		case <-endsignal:
-			break loop
-		}
-	}
-	return s.consumer.Close()
-}
-
 func EndSignal() chan os.Signal {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt)
@@ -234,9 +181,9 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 		return
 	}
 
-	body, errb, code := func() (body []byte, errb []byte, code int32) {
-		starttime := time.Now()
-
+	var body, errb []byte
+	starttime := time.Now()
+	func() {
 		defer func() {
 			if r := recover(); r != nil {
 				if re, ok := r.(error); ok {
@@ -245,39 +192,48 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 					errb = []byte(errors.New(500, errors.E_unknown, fmt.Sprintf("%v", r)).Error())
 				}
 				body = []byte(fmt.Sprintf("%v", r))
-				code = 5
 			}
-
-			success := "true"
-			if len(errb) > 0 {
-				success = "false"
-			}
-			ProcessDuration.WithLabelValues(s.service, req.GetPath(), success).
-				Observe(float64(time.Since(starttime) / 1000000))
 		}()
 
 		ret := hf.function.Call([]reflect.Value{pptr})
-		if req.Forget {
+		if len(ret) != 2 {
+			errb = []byte(errors.New(500, errors.E_kafka_rpc_handler_definition_error, "should returns 2 values (proto.Message, error)").Error())
+		}
+
+		err, ok := ret[1].Interface().(error)
+		if !ok {
+			errb = []byte(errors.New(500, errors.E_kafka_rpc_handler_definition_error, "the second returned value should implement standard error interface").Error())
 			return
 		}
 
-		if len(ret) > 0 {
-			body, _ = ret[0].Interface().([]byte)
+		if err != nil {
+			errb = []byte(errors.Wrap(err, 400, errors.E_unknown).Error())
+			return
 		}
-		if len(ret) > 1 {
-			errb, _ = ret[1].Interface().([]byte)
+
+		msg, ok := ret[0].Interface().(proto.Message)
+		if !ok {
+			errb = []byte(errors.New(500, errors.E_kafka_rpc_handler_definition_error, "the first returned value should implement proto.Message interface").Error())
+			return
 		}
-		if len(errb) != 0 {
-			code = 1
+		body, err = proto.Marshal(msg)
+		if err != nil {
+			errb = []byte(errors.Wrap(err, 500, errors.E_proto_marshal_error).Error())
+			return
 		}
-		return
 	}()
 
-	if time.Since(time.Unix(clock.ToSec(req.GetCreated()), 0)) > 1*time.Minute {
+	success := "true"
+	if len(errb) > 0 {
+		success = "false"
+	}
+	ProcessDuration.WithLabelValues(s.service, req.GetPath(), success).
+		Observe(float64(time.Since(starttime) / 1000000))
+	if req.Forget {
 		return
 	}
 
-	if req.Forget {
+	if time.Since(time.Unix(clock.ToSec(req.GetCreated()), 0)) > 2*time.Minute {
 		return
 	}
 
@@ -285,7 +241,6 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 		RequestId: req.GetId(),
 		Body:      body,
 		Error:     errb,
-		Code:      code,
 		Path:      req.GetPath(),
 		Created:   time.Now().UnixNano(),
 	})
