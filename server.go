@@ -31,6 +31,7 @@ type Job struct {
 
 type handlerFunc struct {
 	paramType reflect.Type
+	firstArg  reflect.Value
 	function  reflect.Value
 }
 
@@ -55,8 +56,6 @@ type Server struct {
 	topic       string
 }
 
-type R map[fmt.Stringer]interface{}
-
 func newHandlerConsumer(brokers []string, topic, csg string) *cluster.Consumer {
 	c := cluster.NewConfig()
 	c.Consumer.MaxWaitTime = 10000 * time.Millisecond
@@ -77,7 +76,7 @@ func newHandlerConsumer(brokers []string, topic, csg string) *cluster.Consumer {
 	}
 }
 
-func NewServer(service string, brokers []string, csg, topic string, handler interface{}) *Server {
+func Serve(service string, brokers []string, csg, topic string, handler interface{}) {
 	csm := newHandlerConsumer(brokers, topic, csg)
 	s := &Server{
 		topic:       topic,
@@ -89,8 +88,7 @@ func NewServer(service string, brokers []string, csg, topic string, handler inte
 		sqmap:       make(map[int32]*squasher.Squasher),
 	}
 	s.exec = executor.NewExecutor(10000, 30, s.handleJob)
-	go s.register(handler)
-	return s
+	s.register(handler)
 }
 
 func (s *Server) handleJob(job executor.Job) {
@@ -108,19 +106,25 @@ func (s *Server) handleJob(job executor.Job) {
 
 func convertToHandlerFunc(prefix string, handler interface{}) map[string]handlerFunc {
 	rs := make(map[string]handlerFunc)
+	handlerValue := reflect.ValueOf(handler)
 	h := reflect.TypeOf(handler)
 	for i := 0; i < h.NumMethod(); i++ {
 		method := h.Method(i)
 		if !strings.HasPrefix(method.Name, "Handle") {
 			continue
 		}
-		ptype := method.Type.In(0).Elem()
+		ptype := method.Type.In(1).Elem()
 		pptr := reflect.New(ptype)
 		if _, ok := pptr.Interface().(proto.Message); !ok {
 			panic("wrong handler for topic " + method.Name +
-				". The second param should be type of proto.Message")
+				". The first parameter should be type of proto.Message, got " +
+				ptype.Name())
 		}
-		rs[prefix+method.Name] = handlerFunc{paramType: ptype, function: method.Func}
+		rs[prefix+method.Name] = handlerFunc{
+			paramType: ptype,
+			function:  method.Func,
+			firstArg:  handlerValue,
+		}
 	}
 	return rs
 }
@@ -195,31 +199,27 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 			}
 		}()
 
-		ret := hf.function.Call([]reflect.Value{pptr})
+		ret := hf.function.Call([]reflect.Value{hf.firstArg, pptr})
 		if len(ret) != 2 {
 			errb = []byte(errors.New(500, errors.E_kafka_rpc_handler_definition_error, "should returns 2 values (proto.Message, error)").Error())
 		}
 
-		err, ok := ret[1].Interface().(error)
-		if !ok {
-			errb = []byte(errors.New(500, errors.E_kafka_rpc_handler_definition_error, "the second returned value should implement standard error interface").Error())
-			return
-		}
-
-		if err != nil {
+		err, _ := ret[1].Interface().(error)
+		if !ret[1].IsNil() && err != nil {
 			errb = []byte(errors.Wrap(err, 400, errors.E_unknown).Error())
 			return
 		}
 
-		msg, ok := ret[0].Interface().(proto.Message)
-		if !ok {
-			errb = []byte(errors.New(500, errors.E_kafka_rpc_handler_definition_error, "the first returned value should implement proto.Message interface").Error())
+		if ret[0].IsNil() {
 			return
 		}
-		body, err = proto.Marshal(msg)
-		if err != nil {
-			errb = []byte(errors.Wrap(err, 500, errors.E_proto_marshal_error).Error())
-			return
+
+		if msg, ok := ret[0].Interface().(proto.Message); !ok {
+			errb = []byte(errors.New(500, errors.E_kafka_rpc_handler_definition_error, "the first returned value should implement proto.Message interface").Error())
+		} else {
+			if body, err = proto.Marshal(msg); err != nil {
+				errb = []byte(errors.Wrap(err, 500, errors.E_proto_marshal_error).Error())
+			}
 		}
 	}()
 
