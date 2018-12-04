@@ -2,7 +2,6 @@ package kafpc
 
 import (
 	"context"
-	"fmt"
 	"git.subiz.net/errors"
 	ugrpc "git.subiz.net/goutils/grpc"
 	pb "git.subiz.net/header/kafpc"
@@ -61,8 +60,8 @@ type Message struct {
 var crc32q = crc32.MakeTable(0xD5828281)
 var TimeoutErr = errors.New(500, errors.E_kafka_rpc_timeout)
 
-func (c *Client) Call(path fmt.Stringer, param, output proto.Message, key string) error {
-	ReqCounter.WithLabelValues(c.service, path.String()).Inc()
+func (c *Client) Call(path string, param, output proto.Message, key string) error {
+	ReqCounter.WithLabelValues(c.service, path).Inc()
 	data, err := proto.Marshal(param)
 	if err != nil {
 		return errors.Wrap(err, 500, errors.E_proto_marshal_error, "input")
@@ -73,7 +72,7 @@ func (c *Client) Call(path fmt.Stringer, param, output proto.Message, key string
 		Id:           rid,
 		ResponseHost: c.host,
 		Body:         data,
-		Path:         path.String(),
+		Path:         path,
 		Created:      time.Now().UnixNano(),
 		Forget:       false,
 	}
@@ -93,8 +92,8 @@ func (c *Client) Call(path fmt.Stringer, param, output proto.Message, key string
 			if res.GetCode() != 0 {
 				haserr = "true"
 			}
-			RepCounter.WithLabelValues(c.service, path.String(), haserr).Inc()
-			TotalDuration.WithLabelValues(c.service, path.String(), haserr).
+			RepCounter.WithLabelValues(c.service, path, haserr).Inc()
+			TotalDuration.WithLabelValues(c.service, path, haserr).
 				Observe(float64(time.Since(time.Unix(0, req.GetCreated())) / 1000000))
 
 			outb = res.GetBody()
@@ -102,7 +101,7 @@ func (c *Client) Call(path fmt.Stringer, param, output proto.Message, key string
 			goto exitfor
 		case <-time.After(60 * time.Second):
 		}
-		TotalDuration.WithLabelValues(c.service, path.String(), "timeout").
+		TotalDuration.WithLabelValues(c.service, path, "timeout").
 			Observe(float64(time.Since(time.Unix(0, req.GetCreated())) / 1000000))
 		return TimeoutErr
 	}

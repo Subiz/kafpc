@@ -77,7 +77,7 @@ func newHandlerConsumer(brokers []string, topic, csg string) *cluster.Consumer {
 	}
 }
 
-func NewServer(service string, brokers []string, csg, topic string) *Server {
+func NewServer(service string, brokers []string, csg, topic string, handler interface{}) *Server {
 	csm := newHandlerConsumer(brokers, topic, csg)
 	s := &Server{
 		topic:       topic,
@@ -89,6 +89,7 @@ func NewServer(service string, brokers []string, csg, topic string) *Server {
 		sqmap:       make(map[int32]*squasher.Squasher),
 	}
 	s.exec = executor.NewExecutor(10000, 30, s.handleJob)
+	go s.register(handler)
 	return s
 }
 
@@ -105,7 +106,7 @@ func (s *Server) handleJob(job executor.Job) {
 	sq.Mark(mes.Offset)
 }
 
-func convertToHandlerFunc(handler interface{}) map[string]handlerFunc {
+func convertToHandlerFunc(prefix string, handler interface{}) map[string]handlerFunc {
 	rs := make(map[string]handlerFunc)
 	h := reflect.TypeOf(handler)
 	for i := 0; i < h.NumMethod(); i++ {
@@ -119,7 +120,7 @@ func convertToHandlerFunc(handler interface{}) map[string]handlerFunc {
 			panic("wrong handler for topic " + method.Name +
 				". The second param should be type of proto.Message")
 		}
-		rs[method.Name] = handlerFunc{paramType: ptype, function: method.Func}
+		rs[prefix+method.Name] = handlerFunc{paramType: ptype, function: method.Func}
 	}
 	return rs
 }
@@ -144,8 +145,8 @@ func convertToHandleFunc(handlers R) map[string]handlerFunc {
 	return rs
 }
 
-func (s *Server) Register(handler interface{}) {
-	s.hs = convertToHandlerFunc(handler)
+func (s *Server) register(handler interface{}) {
+	s.hs = convertToHandlerFunc(s.service, handler)
 	endsignal := EndSignal()
 loop:
 	for {
