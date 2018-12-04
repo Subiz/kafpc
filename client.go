@@ -2,6 +2,7 @@ package kafpc
 
 import (
 	"context"
+	"fmt"
 	"git.subiz.net/errors"
 	ugrpc "git.subiz.net/goutils/grpc"
 	pb "git.subiz.net/header/kafpc"
@@ -60,25 +61,27 @@ type Message struct {
 var crc32q = crc32.MakeTable(0xD5828281)
 var TimeoutErr = errors.New(500, errors.E_kafka_rpc_timeout)
 
-func (c *Client) Call(path string, payload proto.Message, par int32, key string) ([]byte, []byte, error) {
-	ReqCounter.WithLabelValues(c.service, path).Inc()
-	data, err := proto.Marshal(payload)
+func (c *Client) Call(path fmt.Stringer, param, output proto.Message, key string) error {
+	ReqCounter.WithLabelValues(c.service, path.String()).Inc()
+	data, err := proto.Marshal(param)
 	if err != nil {
-		return nil, nil, err
+		return errors.Wrap(err, 500, errors.E_proto_marshal_error, "input")
 	}
+
 	rid := idgen.NewRequestID()
 	req := &pb.Request{
 		Id:           rid,
 		ResponseHost: c.host,
 		Body:         data,
-		Path:         path,
+		Path:         path.String(),
 		Created:      time.Now().UnixNano(),
 		Forget:       false,
 	}
 
 	mod := crc32.Checksum([]byte(rid), crc32q) % c.size
-	c.sendchan[mod] <- Message{req, par, key}
+	c.sendchan[mod] <- Message{req, -1, key}
 	<-c.donesend[mod]
+	var outb, errb []byte
 	for {
 		select {
 		case res := <-c.recvchan[mod]:
@@ -90,20 +93,28 @@ func (c *Client) Call(path string, payload proto.Message, par int32, key string)
 			if res.GetCode() != 0 {
 				haserr = "true"
 			}
-			RepCounter.WithLabelValues(c.service, path, haserr).Inc()
-			TotalDuration.WithLabelValues(c.service, path, haserr).
+			RepCounter.WithLabelValues(c.service, path.String(), haserr).Inc()
+			TotalDuration.WithLabelValues(c.service, path.String(), haserr).
 				Observe(float64(time.Since(time.Unix(0, req.GetCreated())) / 1000000))
 
-			if res.GetCode() != 0 {
-				return res.GetBody(), res.GetError(), nil
-			}
-			return res.GetBody(), nil, nil
+			outb = res.GetBody()
+			errb = res.GetError()
+			goto exitfor
 		case <-time.After(60 * time.Second):
 		}
-		TotalDuration.WithLabelValues(c.service, path, "timeout").
+		TotalDuration.WithLabelValues(c.service, path.String(), "timeout").
 			Observe(float64(time.Since(time.Unix(0, req.GetCreated())) / 1000000))
-		return nil, nil, TimeoutErr
+		return TimeoutErr
 	}
+exitfor:
+	if len(errb) != 0 {
+		return errors.FromString(string(errb))
+	}
+
+	if err = proto.Unmarshal(outb, output); err != nil {
+		return errors.Wrap(err, 500, errors.E_proto_marshal_error)
+	}
+	return nil
 }
 
 func (c *Client) CallAndForget(path string, payload proto.Message, par int32, key string) *errors.Error {
