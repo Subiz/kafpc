@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"reflect"
+	"strings"
 	"sync"
 	"time"
 
@@ -104,6 +105,25 @@ func (s *Server) handleJob(job executor.Job) {
 	sq.Mark(mes.Offset)
 }
 
+func convertToHandlerFunc(handler interface{}) map[string]handlerFunc {
+	rs := make(map[string]handlerFunc)
+	h := reflect.TypeOf(handler)
+	for i := 0; i < h.NumMethod(); i++ {
+		method := h.Method(i)
+		if !strings.HasPrefix(method.Name, "Handle") {
+			continue
+		}
+		ptype := method.Type.In(0).Elem()
+		pptr := reflect.New(ptype)
+		if _, ok := pptr.Interface().(proto.Message); !ok {
+			panic("wrong handler for topic " + method.Name +
+				". The second param should be type of proto.Message")
+		}
+		rs[method.Name] = handlerFunc{paramType: ptype, function: method.Func}
+	}
+	return rs
+}
+
 func convertToHandleFunc(handlers R) map[string]handlerFunc {
 	rs := make(map[string]handlerFunc)
 	for k, v := range handlers {
@@ -122,6 +142,38 @@ func convertToHandleFunc(handlers R) map[string]handlerFunc {
 		rs[ks] = handlerFunc{paramType: ptype, function: f}
 	}
 	return rs
+}
+
+func (s *Server) Register(handler interface{}) {
+	s.hs = convertToHandlerFunc(handler)
+	endsignal := EndSignal()
+loop:
+	for {
+		select {
+		case msg, more := <-s.consumer.Messages():
+			if !more || msg == nil {
+				break loop
+			}
+
+			req := &pb.Request{}
+			err := proto.Unmarshal(msg.Value, req)
+			if err != nil {
+				log.Error(err)
+				continue
+			}
+
+			received := time.Now().UnixNano()
+			s.exec.Add(string(msg.Key), Job{msg, req, received})
+		case <-s.consumer.Notifications():
+		case err := <-s.consumer.Errors():
+			if err != nil {
+				log.Error("kafka error", err)
+			}
+		case <-endsignal:
+			break loop
+		}
+	}
+	s.consumer.Close()
 }
 
 func (s *Server) Serve(handlers R) error {
