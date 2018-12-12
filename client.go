@@ -117,26 +117,6 @@ exitfor:
 	return nil
 }
 
-func (c *Client) CallAndForget(path string, payload proto.Message, par int32, key string) *errors.Error {
-	data, err := proto.Marshal(payload)
-	if err != nil {
-		return errors.Wrap(err, 500, errors.E_proto_marshal_error)
-	}
-	rid := idgen.NewRequestID()
-	req := &pb.Request{
-		Id:      rid,
-		Body:    data,
-		Path:    path,
-		Created: time.Now().UnixNano(),
-		Forget:  true,
-	}
-
-	mod := crc32.Checksum([]byte(rid), crc32q) % c.size
-	c.sendchan[mod] <- Message{req, par, key}
-	<-c.donesend[mod]
-	return nil
-}
-
 func (c *Client) runSend() {
 	for i := uint32(0); i < c.size; i++ {
 		go func(i uint32) {
