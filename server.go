@@ -279,6 +279,11 @@ func (s *Server) createSqIfNotExist(par int32, offset int64) *squasher.Squasher 
 }
 
 func (s *Server) callClient(host string, resp *pb.Response) {
+	// call and forget, caller dont want to wait for response
+	if host == ":0" {
+		return
+	}
+
 	var c pb.KafpcClient
 	ci, ok := s.clients.Get(host)
 	if !ok {
