@@ -81,6 +81,12 @@ func (c *Client) Call(path string, param, output proto.Message, key string) erro
 	mod := crc32.Checksum([]byte(rid), crc32q) % c.size
 	c.sendchan[mod] <- Message{req, -1, key}
 	<-c.donesend[mod]
+
+	// fire and forget
+	if c.host == ":0" {
+		return nil
+	}
+
 	var outb, errb []byte
 	for {
 		select {
