@@ -10,16 +10,16 @@ import (
 	"sync"
 	"time"
 
-	"git.subiz.net/errors"
-	"git.subiz.net/executor"
-	"git.subiz.net/goutils/clock"
-	"git.subiz.net/goutils/log"
-	cmap "git.subiz.net/goutils/map"
-	pb "git.subiz.net/header/kafpc"
-	"git.subiz.net/squasher"
 	"github.com/Shopify/sarama"
 	cluster "github.com/bsm/sarama-cluster"
 	"github.com/golang/protobuf/proto"
+	"github.com/subiz/errors"
+	"github.com/subiz/executor"
+	"github.com/subiz/goutils/clock"
+	"github.com/subiz/goutils/log"
+	cmap "github.com/subiz/goutils/map"
+	pb "github.com/subiz/header/kafpc"
+	"github.com/subiz/squasher"
 	"google.golang.org/grpc"
 )
 

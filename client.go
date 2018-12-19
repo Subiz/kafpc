@@ -2,12 +2,12 @@ package kafpc
 
 import (
 	"context"
-	"git.subiz.net/errors"
-	ugrpc "git.subiz.net/goutils/grpc"
-	pb "git.subiz.net/header/kafpc"
-	"git.subiz.net/idgen"
-	"git.subiz.net/kafka"
 	"github.com/golang/protobuf/proto"
+	"github.com/subiz/errors"
+	ugrpc "github.com/subiz/goutils/grpc"
+	pb "github.com/subiz/header/kafpc"
+	"github.com/subiz/idgen"
+	"github.com/subiz/kafka"
 	"google.golang.org/grpc"
 	"hash/crc32"
 	"net"
