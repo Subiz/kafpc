@@ -89,12 +89,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e6d91bf5631caea3c36d6cb3fa058e13d8df0b9d2787efbb9d78bbcf4dbe5fd7"
+  digest = "1:aa3d8d42865c42626b5c1add193692d045b3188b1479f0a0a88690d21fe20083"
   name = "github.com/mailru/easyjson"
   packages = [
     ".",
     "buffer",
-    "gen",
     "jlexer",
     "jwriter",
   ]
@@ -203,34 +202,16 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:eea37c701c31a96b95b8bd64039c0d95c7e286bf34f47592de57507fe6c63467"
+  digest = "1:4de5efeb6ffd56bd75c718e0b4d9029fe91aa480bdbba83541426c4a6a74b4fa"
   name = "github.com/subiz/header"
   packages = [
-    ".",
-    "account",
     "auth",
-    "avatar",
-    "client",
     "common",
-    "content",
-    "conversation",
-    "deal",
-    "event",
-    "file",
     "kafpc",
-    "kv",
     "logan",
-    "noti5",
-    "notibox",
-    "payment",
-    "placeholder",
-    "pubsub",
-    "user",
-    "webhook4",
-    "widget",
   ]
   pruneopts = "UT"
-  revision = "11cd53a6d1943531acb4065749cefd628542b2d4"
+  revision = "11db6a7b682925de25c5a9b98e515a1e142bf875"
 
 [[projects]]
   branch = "master"
@@ -365,7 +346,6 @@
     "github.com/subiz/goutils/grpc",
     "github.com/subiz/goutils/log",
     "github.com/subiz/goutils/map",
-    "github.com/subiz/header",
     "github.com/subiz/header/kafpc",
     "github.com/subiz/idgen",
     "github.com/subiz/kafka",
