@@ -27,7 +27,7 @@
 
 [[constraint]]
   name = "github.com/Shopify/sarama"
-  version = "1.20.0"
+  version = "1.20.1"
 
 [[constraint]]
   name = "github.com/bsm/sarama-cluster"
@@ -71,7 +71,7 @@
 
 [[constraint]]
   name = "google.golang.org/grpc"
-  version = "1.17.0"
+  version = "1.18.0"
 
 [prune]
   go-tests = true

@@ -2,48 +2,20 @@
 
 
 [[projects]]
-  branch = "master"
-  digest = "1:ae458393f8b9ca35a1ac9de8e98fcaf535297b3382daac566c07b4afa3e45329"
-  name = "git.subiz.net/goutils"
-  packages = ["map"]
-  pruneopts = "UT"
-  revision = "2695431d0ed2c6ef88d78ef26d84277874d3df10"
-
-[[projects]]
-  branch = "master"
-  digest = "1:886f83f8e24decafdf11d027a86ddad6c4a5391654c7ea005326bbc851519653"
-  name = "git.subiz.net/header"
-  packages = [
-    "auth",
-    "common",
-    "logan",
-  ]
-  pruneopts = "UT"
-  revision = "25d854f0a2373a3c7e822d0f24414ddbeb90f0cb"
-
-[[projects]]
-  branch = "master"
-  digest = "1:3058db964696dfe6a7a7ca04aa08403c76e4c0fc562b90aa70a6453bf926469e"
-  name = "git.subiz.net/kafka"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "c3384428919eaec325e1db940cfda0ca57f131f0"
-
-[[projects]]
-  digest = "1:c99bd4548f502371b98c77534239a514c9a1e715d468af3c108db06186aa692a"
+  digest = "1:ed77032e4241e3b8329c9304d66452ed196e795876e14be677a546f36b94e67a"
   name = "github.com/DataDog/zstd"
   packages = ["."]
   pruneopts = "UT"
-  revision = "aebefd9fcb99f22cd691ef778a12ed68f0e6a1ab"
-  version = "v1.3.4"
+  revision = "c7161f8c63c045cbc7ca051dcc969dd0e4054de2"
+  version = "v1.3.5"
 
 [[projects]]
-  digest = "1:a59a467c541a1bf8b06e4fad6113028c959be6573b78ceca9f8020cd0d2127fc"
+  digest = "1:28917d5a3f5e53a4c8a4035195c022649c66a4d71d6357a2276cd347945bd527"
   name = "github.com/Shopify/sarama"
   packages = ["."]
   pruneopts = "UT"
-  revision = "879f631812a30a580659e8035e7cda9994bb99ac"
-  version = "v1.20.0"
+  revision = "03a43f93cd29dc549e6d9b11892795c206f9c38c"
+  version = "v1.20.1"
 
 [[projects]]
   branch = "master"
@@ -138,15 +110,15 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:e39a5ee8fcbec487f8fc68863ef95f2b025e0739b0e4aa55558a2b4cf8f0ecf0"
+  digest = "1:c7a5e79396b6eb570159df7a1d487ce5775bf43b7907976fbef6de544ea160ad"
   name = "github.com/pierrec/lz4"
   packages = [
     ".",
     "internal/xxh32",
   ]
   pruneopts = "UT"
-  revision = "635575b42742856941dbc767b44905bb9ba083f6"
-  version = "v2.0.7"
+  revision = "473cd7ce01a1113208073166464b98819526150e"
+  version = "v2.0.8"
 
 [[projects]]
   digest = "1:75d51eeab0df85a3cea9e1297ccd3183b20a10cb4b48c753d8ec8d113cc14250"
@@ -165,11 +137,10 @@
   name = "github.com/prometheus/client_model"
   packages = ["go"]
   pruneopts = "UT"
-  revision = "5c3871d89910bfb32f5fcab2aa4b9ec68e65a99f"
+  revision = "fd36f4220a901265f90734c3183c5f0c91daa0b8"
 
 [[projects]]
-  branch = "master"
-  digest = "1:33c81bf709f084827a560e14415b1d7001a6d1d6fa4bec2cc2e60b84ecbc0e0a"
+  digest = "1:35cf6bdf68db765988baa9c4f10cc5d7dda1126a54bd62e252dbcd0b1fc8da90"
   name = "github.com/prometheus/common"
   packages = [
     "expfmt",
@@ -177,11 +148,12 @@
     "model",
   ]
   pruneopts = "UT"
-  revision = "67670fe90761d7ff18ec1d640135e53b9198328f"
+  revision = "cfeb6f9992ffa54aaa4f2170ade4067ee478b250"
+  version = "v0.2.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:d39e7c7677b161c2dd4c635a2ac196460608c7d8ba5337cc8cae5825a2681f8f"
+  digest = "1:f0bb332b39488b057a8671557f307997426e5c650ee738a634a0697a41e207c5"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -190,7 +162,7 @@
     "xfs",
   ]
   pruneopts = "UT"
-  revision = "1dc9a6cbc91aacc3e8b2d63db4d2e957a5394ac4"
+  revision = "f8d8b3f739bd91a7c0462cb55235ef63c79c9abc"
 
 [[projects]]
   branch = "master"
@@ -202,11 +174,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:79a1c0b48d241cb4509932e647ad50f97a4f4a603e54fc9f13acb5f293b2eaa7"
+  digest = "1:75cfca2e88ce6d061c7e2f7d797494f3088d968ab0debac528fe988a7d34062e"
   name = "github.com/subiz/errors"
   packages = ["."]
   pruneopts = "UT"
-  revision = "9317be24324757d8c0ee9104ca51c055b9eaea36"
+  revision = "082b23397f0750a83fdec7d59afe4a4e6c58bb11"
 
 [[projects]]
   branch = "master"
@@ -218,7 +190,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ac42a8f36e53ee84fca4ee01c50d0969fb15fed0de3297027a6f1fc1ecfab890"
+  digest = "1:8f7241546a1294ab84e87a3f573fbe6bf693b7dfae6ffdc7991c0349915b8ac3"
   name = "github.com/subiz/goutils"
   packages = [
     "clock",
@@ -227,34 +199,54 @@
     "map",
   ]
   pruneopts = "UT"
-  revision = "2695431d0ed2c6ef88d78ef26d84277874d3df10"
+  revision = "e6bdfd82191689a96c0851fad1c93033917a25cb"
 
 [[projects]]
   branch = "master"
-  digest = "1:e3fe7c5befb30c9f698ec1535663b55ea11b9d87f9f6d6d41656e458532c3f09"
+  digest = "1:eea37c701c31a96b95b8bd64039c0d95c7e286bf34f47592de57507fe6c63467"
   name = "github.com/subiz/header"
   packages = [
+    ".",
+    "account",
+    "auth",
+    "avatar",
+    "client",
     "common",
+    "content",
+    "conversation",
+    "deal",
+    "event",
+    "file",
     "kafpc",
+    "kv",
+    "logan",
+    "noti5",
+    "notibox",
+    "payment",
+    "placeholder",
+    "pubsub",
+    "user",
+    "webhook4",
+    "widget",
   ]
   pruneopts = "UT"
-  revision = "25d854f0a2373a3c7e822d0f24414ddbeb90f0cb"
+  revision = "11cd53a6d1943531acb4065749cefd628542b2d4"
 
 [[projects]]
   branch = "master"
-  digest = "1:7ccb6b287dd146d19fae53327aaa16cfd8ad9307448986ab2e8e4f396863b9eb"
+  digest = "1:9fddaaed512411050ca863c3866421301d2cd19c13ccd52ce88e4b852b65d35c"
   name = "github.com/subiz/idgen"
   packages = ["."]
   pruneopts = "UT"
-  revision = "918332084b1c4a3f0d6b2450326860a16b871e44"
+  revision = "c8a694b39a68cafeb8dedea9316de8b99a0d5dd3"
 
 [[projects]]
   branch = "master"
-  digest = "1:3058db964696dfe6a7a7ca04aa08403c76e4c0fc562b90aa70a6453bf926469e"
+  digest = "1:d6fa77a4ab7231225ee28022720dd52d7c24f977cbc94bb9d983071484290957"
   name = "github.com/subiz/kafka"
   packages = ["."]
   pruneopts = "UT"
-  revision = "c3384428919eaec325e1db940cfda0ca57f131f0"
+  revision = "fd455772ab035d5c9e5b4ca5d707f40e05c6508a"
 
 [[projects]]
   branch = "master"
@@ -266,7 +258,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:89a0cb976397aa9157a45bb2b896d0bcd07ee095ac975e0f03c53250c402265e"
+  digest = "1:fc7b6b4384e1e849d99eab58eca4f8c0a76bad4699117d5077a9a5c3c83e289e"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -278,15 +270,15 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "e147a9138326bc0e9d4e179541ffd8af41cff8a9"
+  revision = "3a22650c66bd7f4fb6d1e8072ffd7b75c8a27898"
 
 [[projects]]
   branch = "master"
-  digest = "1:48a949ee15f5f03524b792547822221b07f828dd26522b5e08688f25a10d14c1"
+  digest = "1:8207c052fb873f83c61a5aa16f6add5feb9881eda2112b56f69fd3b9e7f55c3f"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "074acd46bca67915925527c07849494d115e7c43"
+  revision = "d0b11bdaac8adb652bff00e49bcacf992835621a"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
@@ -317,10 +309,10 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "UT"
-  revision = "67d6565462c5a0d99b88193d59fefa10ca7e3010"
+  revision = "bd968387e4aa590b3c6e4ba38ecac1ed314d43ad"
 
 [[projects]]
-  digest = "1:9edd250a3c46675d0679d87540b30c9ed253b19bd1fd1af08f4f5fb3c79fc487"
+  digest = "1:9ab5a33d8cb5c120602a34d2e985ce17956a4e8c2edce7e6961568f95e40c09a"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -356,8 +348,8 @@
     "tap",
   ]
   pruneopts = "UT"
-  revision = "df014850f6dee74ba2fc94874043a9f3f75fbfd8"
-  version = "v1.17.0"
+  revision = "a02b0774206b209466313a0b525d2c738fe407eb"
+  version = "v1.18.0"
 
 [solve-meta]
   analyzer-name = "dep"
@@ -373,6 +365,7 @@
     "github.com/subiz/goutils/grpc",
     "github.com/subiz/goutils/log",
     "github.com/subiz/goutils/map",
+    "github.com/subiz/header",
     "github.com/subiz/header/kafpc",
     "github.com/subiz/idgen",
     "github.com/subiz/kafka",
