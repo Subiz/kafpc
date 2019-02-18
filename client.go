@@ -5,6 +5,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/subiz/errors"
 	ugrpc "github.com/subiz/goutils/grpc"
+	"github.com/subiz/header"
 	pb "github.com/subiz/header/kafpc"
 	"github.com/subiz/idgen"
 	"github.com/subiz/kafka"
@@ -141,7 +142,7 @@ func (c *Client) runSend() {
 
 func (c *Client) runRecv() {
 	grpcServer := grpc.NewServer(ugrpc.NewRecoveryInterceptor())
-	pb.RegisterKafpcServer(grpcServer, c)
+	header.RegisterKafpcServer(grpcServer, c)
 
 	lis, err := net.Listen("tcp", c.host)
 	if err != nil {

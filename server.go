@@ -18,6 +18,7 @@ import (
 	"github.com/subiz/goutils/clock"
 	"github.com/subiz/goutils/log"
 	cmap "github.com/subiz/goutils/map"
+	"github.com/subiz/header"
 	pb "github.com/subiz/header/kafpc"
 	"github.com/subiz/squasher"
 	"google.golang.org/grpc"
@@ -284,7 +285,7 @@ func (s *Server) callClient(host string, resp *pb.Response) {
 		return
 	}
 
-	var c pb.KafpcClient
+	var c header.KafpcClient
 	ci, ok := s.clients.Get(host)
 	if !ok {
 		c = s.dialClient(host)
@@ -293,7 +294,7 @@ func (s *Server) callClient(host string, resp *pb.Response) {
 		}
 		s.clients.Set(host, c)
 	} else {
-		c = ci.(pb.KafpcClient)
+		c = ci.(header.KafpcClient)
 	}
 
 	clientDeadline := time.Now().Add(1 * time.Second)
@@ -305,13 +306,13 @@ func (s *Server) callClient(host string, resp *pb.Response) {
 	}()
 }
 
-func (s *Server) dialClient(host string) pb.KafpcClient {
+func (s *Server) dialClient(host string) header.KafpcClient {
 	conn, err := dialGrpc(host)
 	if err != nil {
 		log.Error("unable to connect to "+host+" service", err)
 		return nil
 	}
-	c := pb.NewKafpcClient(conn)
+	c := header.NewKafpcClient(conn)
 	s.clients.Set(host, c)
 	return c
 }
