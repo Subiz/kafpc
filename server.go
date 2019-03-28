@@ -182,7 +182,7 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 		return
 	}
 
-	if time.Since(time.Unix(clock.ToSec(req.GetCreated()), 0)) > 1*time.Minute {
+	if time.Since(time.Unix(clock.UnixSec(req.GetCreated()), 0)) > 1*time.Minute {
 		return
 	}
 
@@ -234,7 +234,7 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 		return
 	}
 
-	if time.Since(time.Unix(clock.ToSec(req.GetCreated()), 0)) > 2*time.Minute {
+	if time.Since(time.Unix(clock.UnixSec(req.GetCreated()), 0)) > 2*time.Minute {
 		return
 	}
 
