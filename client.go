@@ -63,7 +63,6 @@ var TimeoutErr = errors.New(500, errors.E_kafka_rpc_timeout)
 
 func (c *Client) Call(path string, param, output proto.Message, key string) error {
 	path = c.service + path
-	ReqCounter.WithLabelValues(c.service, path).Inc()
 	data, err := proto.Marshal(param)
 	if err != nil {
 		return errors.Wrap(err, 500, errors.E_proto_marshal_error, "input")
@@ -96,21 +95,11 @@ func (c *Client) Call(path string, param, output proto.Message, key string) erro
 				continue
 			}
 
-			haserr := "false"
-			if res.GetCode() != 0 {
-				haserr = "true"
-			}
-			RepCounter.WithLabelValues(c.service, path, haserr).Inc()
-			TotalDuration.WithLabelValues(c.service, path, haserr).
-				Observe(float64(time.Since(time.Unix(0, req.GetCreated())) / 1000000))
-
 			outb = res.GetBody()
 			errb = res.GetError()
 			goto exitfor
 		case <-time.After(60 * time.Second):
 		}
-		TotalDuration.WithLabelValues(c.service, path, "timeout").
-			Observe(float64(time.Since(time.Unix(0, req.GetCreated())) / 1000000))
 		return TimeoutErr
 	}
 exitfor:

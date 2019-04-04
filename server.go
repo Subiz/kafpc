@@ -98,9 +98,6 @@ func (s *Server) handleJob(job executor.Job) {
 	sq := s.createSqIfNotExist(mes.Partition, mes.Offset)
 	s.Unlock()
 
-	LagQueueDuration.WithLabelValues(s.service, mes.req.GetPath()).
-		Observe(float64(time.Since(time.Unix(0, mes.received)) / 1000000))
-
 	s.callHandler(s.hs, mes.req)
 	sq.Mark(mes.Offset)
 }
@@ -187,7 +184,6 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 	}
 
 	var body, errb []byte
-	starttime := time.Now()
 	func() {
 		defer func() {
 			if r := recover(); r != nil {
@@ -224,12 +220,6 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 		}
 	}()
 
-	success := "true"
-	if len(errb) > 0 {
-		success = "false"
-	}
-	ProcessDuration.WithLabelValues(s.service, req.GetPath(), success).
-		Observe(float64(time.Since(starttime) / 1000000))
 	if req.Forget {
 		return
 	}
