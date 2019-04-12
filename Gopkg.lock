@@ -2,20 +2,20 @@
 
 
 [[projects]]
-  digest = "1:ed77032e4241e3b8329c9304d66452ed196e795876e14be677a546f36b94e67a"
+  digest = "1:fa6d2866c3f2426871e3a3adb4ab1b9885801558559b15a8a05698f0a82c1c7d"
   name = "github.com/DataDog/zstd"
   packages = ["."]
   pruneopts = "UT"
-  revision = "c7161f8c63c045cbc7ca051dcc969dd0e4054de2"
-  version = "v1.3.5"
+  revision = "69c5189b6513b1503c9c5332fb2e96362e51d547"
+  version = "v1.3.8"
 
 [[projects]]
-  digest = "1:82a18170c9c41e36939cb5d26da1546b2cfa786aa030a978d3bf183519849230"
+  digest = "1:8bf13b4dbecd2e3e2bf4d8fac3b37ffc61dc19653f2e38c7b0e575c7182c6d8b"
   name = "github.com/Shopify/sarama"
   packages = ["."]
   pruneopts = "UT"
-  revision = "4602b5a8c6e826f9e0737865818dd43b2339a092"
-  version = "v1.21.0"
+  revision = "5d2af84cf5e2dd36f2daecaaafa13c4e286f20fd"
+  version = "v1.22.0"
 
 [[projects]]
   digest = "1:526d64d0a3ac6c24875724a9355895be56a21f89a5d3ab5ba88d91244269a7d8"
@@ -113,23 +113,23 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:185b3ca181c7454731de084f89cd3ee6a7124725d2b6610c6acc5200b6418f52"
+  digest = "1:e789101620aaabaf8edce2bdbb8941a35dcd9db327fbd302dad3543b3e8cc556"
   name = "github.com/subiz/errors"
   packages = ["."]
   pruneopts = "UT"
-  revision = "7d35476063b668998d5a63f2d484f24656afdf5a"
+  revision = "3e282403882f31bf9c5982c540d075c5ef41efba"
 
 [[projects]]
   branch = "master"
-  digest = "1:ed5c7387bf6b22219d8ee6878245814deab2c5086be5e37d64f57fc561d56f96"
+  digest = "1:c79252476756a6c13d43f0b94e19bdd68d7bd48b58663fae200236c450e0aadf"
   name = "github.com/subiz/executor"
   packages = ["."]
   pruneopts = "UT"
-  revision = "05e8cfa460367c0fc30ef6788695b1e2951a8e84"
+  revision = "c04b4cdef2ac3e60677c6d5dfd4d115a5492a02f"
 
 [[projects]]
   branch = "master"
-  digest = "1:e3bd0e7cf2f22226e4721010ad76fc2cbfe5e5d7ba07b774c3a9531b014f572f"
+  digest = "1:aec65c5fae7df719001b5325bbfa3ef835531674effcc67784814cc1fc15031d"
   name = "github.com/subiz/goutils"
   packages = [
     "clock",
@@ -138,11 +138,11 @@
     "map",
   ]
   pruneopts = "UT"
-  revision = "7aed4c5eebc0bfdb7161fce595616b36cbb8c9ff"
+  revision = "8457a7a52d45cf57f6482a32468052af4c72c590"
 
 [[projects]]
   branch = "master"
-  digest = "1:248e81aef72c7c6122464a366bc9fd4b569a7e4d14152a7cfb08274963d8bae8"
+  digest = "1:45ae0de5bc34ea612a4ba94cac92aec40e24cf33dcf6f500949e83595b2789f4"
   name = "github.com/subiz/header"
   packages = [
     ".",
@@ -171,7 +171,7 @@
     "widget",
   ]
   pruneopts = "UT"
-  revision = "6a46928b4005c63e723693c7f81575ce37876f20"
+  revision = "7a9269bcf97449f7393ed718d2da526d3a7f502e"
 
 [[projects]]
   branch = "master"
@@ -183,11 +183,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d6fa77a4ab7231225ee28022720dd52d7c24f977cbc94bb9d983071484290957"
+  digest = "1:4a36e3eff6eefff7239ad3fa27cfbf111113592ea3d4150b135d926df07ac5cc"
   name = "github.com/subiz/kafka"
   packages = ["."]
   pruneopts = "UT"
-  revision = "fd455772ab035d5c9e5b4ca5d707f40e05c6508a"
+  revision = "6c00115fe8abeffd37a9609b39a3cb50fca964e6"
 
 [[projects]]
   branch = "master"
@@ -199,7 +199,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a7550c619a7f9701bc2f0b2c866668a207cfb693a2834796f723d2c78b514372"
+  digest = "1:2f2fffd37ea6081a9422b3010982805daab9dbd7bd030196f79298575bfe2581"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -207,19 +207,21 @@
     "http2",
     "http2/hpack",
     "idna",
+    "internal/socks",
     "internal/timeseries",
+    "proxy",
     "trace",
   ]
   pruneopts = "UT"
-  revision = "b630fd6fe46bcfc98f989005d8b8ec1400e60a6e"
+  revision = "eb5bcb51f2a31c7d5141d810b70815c05d9c9146"
 
 [[projects]]
   branch = "master"
-  digest = "1:e18c1645adfe83d66f80d3676040e478895669f9456ca8bafa6a7290656c1b48"
+  digest = "1:3e01c69b34e7c3fa4b7a118ca95a6beaecea00f7f4fb701545d83eacd3badb3c"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "81d4e9dc473e5e8c933f2aaeba2a3d81efb9aed2"
+  revision = "b44545bcd369ef9ff9bebcfebf5f3370ef9b1932"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
@@ -250,10 +252,10 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "UT"
-  revision = "f467c93bbac2133ff463e1f93d18d8f9f3f04451"
+  revision = "64821d5d210748c883cd2b809589555ae4654203"
 
 [[projects]]
-  digest = "1:c00eb80d7b152379c3e94c38d82b29deca98b1d0f53e4e20362589b7fcbffa07"
+  digest = "1:31d87f39886fb38a2b6c097ff3b9f985d6960772170d64a68246f7790e955746"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -270,6 +272,7 @@
     "grpclog",
     "internal",
     "internal/backoff",
+    "internal/balancerload",
     "internal/binarylog",
     "internal/channelz",
     "internal/envconfig",
@@ -289,8 +292,8 @@
     "tap",
   ]
   pruneopts = "UT"
-  revision = "3507fb8e1a5ad030303c106fef3a47c9fdad16ad"
-  version = "v1.19.1"
+  revision = "236199dd5f8031d698fb64091194aecd1c3895b2"
+  version = "v1.20.0"
 
 [solve-meta]
   analyzer-name = "dep"
