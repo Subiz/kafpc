@@ -84,16 +84,16 @@ func Serve(service string, brokers []string, csg, topic string, handler interfac
 		service:     service,
 		RWMutex:     &sync.RWMutex{},
 		consumer:    csm,
-		squashercap: 10000 * 30 * 2,
+		squashercap: 1000 * 30 * 2,
 		clients:     cmap.New(32),
 		sqmap:       make(map[int32]*squasher.Squasher),
 	}
-	s.exec = executor.NewExecutor(10000, 30, s.handleJob)
+	s.exec = executor.New(1000, s.handleJob)
 	s.register(handler)
 }
 
-func (s *Server) handleJob(job executor.Job) {
-	mes := job.Data.(Job)
+func (s *Server) handleJob(_ string, job interface{}) {
+	mes := job.(Job)
 	s.Lock()
 	sq := s.createSqIfNotExist(mes.Partition, mes.Offset)
 	s.Unlock()
