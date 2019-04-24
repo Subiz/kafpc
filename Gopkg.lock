@@ -2,12 +2,12 @@
 
 
 [[projects]]
-  digest = "1:fa6d2866c3f2426871e3a3adb4ab1b9885801558559b15a8a05698f0a82c1c7d"
+  digest = "1:6d8a3b164679872fa5a4c44559235f7fb109c7b5cd0f456a2159d579b76cc9ba"
   name = "github.com/DataDog/zstd"
   packages = ["."]
   pruneopts = "UT"
-  revision = "69c5189b6513b1503c9c5332fb2e96362e51d547"
-  version = "v1.3.8"
+  revision = "809b919c325d7887bff7bd876162af73db53e878"
+  version = "v1.4.0"
 
 [[projects]]
   digest = "1:8bf13b4dbecd2e3e2bf4d8fac3b37ffc61dc19653f2e38c7b0e575c7182c6d8b"
@@ -93,15 +93,15 @@
   revision = "1ea4449da9834f4d333f1cc461c374aea217d249"
 
 [[projects]]
-  digest = "1:d886a3c32c8c1a770d07e36340f061d3afc948d065ffc3c9a19b01b34d4f0b65"
+  digest = "1:cf9272ab0a637cb1ffa40e2b6220108d7016a36b3eb357e4b57aacb7a8f725c0"
   name = "github.com/pierrec/lz4"
   packages = [
     ".",
     "internal/xxh32",
   ]
   pruneopts = "UT"
-  revision = "315a67e90e415bcdaff33057da191569bf4d8479"
-  version = "v2.1.1"
+  revision = "9419d2361c8ae111073ffe3337ecc364fb590921"
+  version = "v2.1.2"
 
 [[projects]]
   branch = "master"
@@ -121,11 +121,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c79252476756a6c13d43f0b94e19bdd68d7bd48b58663fae200236c450e0aadf"
+  digest = "1:1f7e76793c0c360ceb96681704103da037b0d347454525b374bb085397fe005d"
   name = "github.com/subiz/executor"
   packages = ["."]
   pruneopts = "UT"
-  revision = "c04b4cdef2ac3e60677c6d5dfd4d115a5492a02f"
+  revision = "7076b7bf720fbb6e56216525f3d5ad834f6d5d28"
 
 [[projects]]
   branch = "master"
@@ -142,7 +142,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:45ae0de5bc34ea612a4ba94cac92aec40e24cf33dcf6f500949e83595b2789f4"
+  digest = "1:c45dbc17300b4f74d0e234360a4d3afe4b96d633dbf18da96505529d5d479827"
   name = "github.com/subiz/header"
   packages = [
     ".",
@@ -171,7 +171,7 @@
     "widget",
   ]
   pruneopts = "UT"
-  revision = "7a9269bcf97449f7393ed718d2da526d3a7f502e"
+  revision = "1a59b2c659640e14f8b108a7f76f504b411c6d58"
 
 [[projects]]
   branch = "master"
@@ -183,11 +183,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4a36e3eff6eefff7239ad3fa27cfbf111113592ea3d4150b135d926df07ac5cc"
+  digest = "1:855de24db0cd06cf1c7367071492b59398be3f8732b6c841df9764683973cde9"
   name = "github.com/subiz/kafka"
   packages = ["."]
   pruneopts = "UT"
-  revision = "6c00115fe8abeffd37a9609b39a3cb50fca964e6"
+  revision = "34c5e366bca2a8316e58e76a221f544bc738e7fa"
 
 [[projects]]
   branch = "master"
@@ -199,7 +199,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2f2fffd37ea6081a9422b3010982805daab9dbd7bd030196f79298575bfe2581"
+  digest = "1:efbd6a7ba589e683c6fbd55992cde33c159964c053178aae577b4575b376e6c3"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -213,15 +213,15 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "eb5bcb51f2a31c7d5141d810b70815c05d9c9146"
+  revision = "4829fb13d2c62012c17688fa7f629f371014946d"
 
 [[projects]]
   branch = "master"
-  digest = "1:3e01c69b34e7c3fa4b7a118ca95a6beaecea00f7f4fb701545d83eacd3badb3c"
+  digest = "1:55565b142e38b7d00c39ce9a86fc70bbfa37c4f2f00d8ff2343f433c351db8e3"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "b44545bcd369ef9ff9bebcfebf5f3370ef9b1932"
+  revision = "953cdadca894cdc07be76fc99f95b40c28f06623"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
@@ -252,10 +252,10 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "UT"
-  revision = "64821d5d210748c883cd2b809589555ae4654203"
+  revision = "e7d98fc518a78c9f8b5ee77be7b0b317475d89e1"
 
 [[projects]]
-  digest = "1:31d87f39886fb38a2b6c097ff3b9f985d6960772170d64a68246f7790e955746"
+  digest = "1:707c3a5d10ed430ea767d73df122d9eb3dfb6312bbacc9f2e39204390686d1d0"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -292,8 +292,8 @@
     "tap",
   ]
   pruneopts = "UT"
-  revision = "236199dd5f8031d698fb64091194aecd1c3895b2"
-  version = "v1.20.0"
+  revision = "25c4f928eaa6d96443009bd842389fb4fa48664e"
+  version = "v1.20.1"
 
 [solve-meta]
   analyzer-name = "dep"
