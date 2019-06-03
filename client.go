@@ -47,8 +47,8 @@ func NewClient(service string, brokers []string, ip, topic string, port int) *Cl
 		recvchan[i] = make(chan *pb.Response)
 		donesend[i] = make(chan bool)
 	}
-	go c.runSend()
 	go c.runRecv()
+	c.runSend()
 	return c
 }
 
@@ -98,7 +98,7 @@ func (c *Client) Call(path string, param, output proto.Message, key string) erro
 			outb = res.GetBody()
 			errb = res.GetError()
 			goto exitfor
-		case <-time.After(60 * time.Second):
+		case <-time.After(30 * time.Second):
 		}
 		return TimeoutErr
 	}
@@ -119,9 +119,7 @@ func (c *Client) runSend() {
 			for {
 				mes := <-c.sendchan[i]
 				func() {
-					defer func() {
-						c.donesend[i] <- true
-					}()
+					defer func() { c.donesend[i] <- true }()
 					c.pub.Publish(c.topic, mes.payload, mes.par, mes.key)
 				}()
 			}
