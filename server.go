@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -27,7 +26,6 @@ type handlerFunc struct {
 }
 
 type Server struct {
-	*sync.RWMutex
 	service string
 	hs      map[string]handlerFunc
 	clients cmap.Map
@@ -35,30 +33,24 @@ type Server struct {
 }
 
 func Serve(service string, brokers []string, csg, topic string, handler interface{}) {
-	s := &Server{
-		topic:   topic,
-		service: service,
-		RWMutex: &sync.RWMutex{},
-		clients: cmap.New(32),
-	}
+	s := &Server{topic: topic, service: service, clients: cmap.New(32)}
 
 	h := kafka.NewHandler(brokers, csg, topic, true)
 	hs := s.convertToHandlerFunc(s.service, handler)
-	h.Serve(hs, func(_ []int32) {})
-	/*
-		kafka.H{
-			"": func(_ *cpb.Context, val []byte) {
-				req := &pb.Request{}
-				if err := proto.Unmarshal(val, req); err != nil {
-					return
-				}
-				s.callHandler(s.hs, req)
-			},
-		}*/
+
+	h.Serve(kafka.H{
+		"": func(ctx *cpb.Context, val []byte) {
+			req := &pb.Request{}
+			if err := proto.Unmarshal(val, req); err != nil {
+				return
+			}
+			s.callHandler(hs[req.GetPath()], req)
+		},
+	}, func(_ []int32) {})
 }
 
-func (s *Server) convertToHandlerFunc(prefix string, handler interface{}) kafka.H {
-	rs := kafka.H{}
+func (s *Server) convertToHandlerFunc(prefix string, handler interface{}) map[string]handlerFunc {
+	rs := make(map[string]handlerFunc)
 	handlerValue := reflect.ValueOf(handler)
 	h := reflect.TypeOf(handler)
 	for i := 0; i < h.NumMethod(); i++ {
@@ -73,28 +65,16 @@ func (s *Server) convertToHandlerFunc(prefix string, handler interface{}) kafka.
 				". The first parameter should be type of proto.Message, got " +
 				ptype.Name())
 		}
-		rs[prefix+method.Name] = func(_ *cpb.Context, val []byte) {
-			req := &pb.Request{}
-			if err := proto.Unmarshal(val, req); err != nil {
-				return
-			}
-			s.callHandler(handlerFunc{
-				paramType: ptype,
-				function:  method.Func,
-				firstArg:  handlerValue,
-			}, req)
+		rs[prefix+method.Name] = handlerFunc{
+			paramType: ptype,
+			function:  method.Func,
+			firstArg:  handlerValue,
 		}
 	}
 	return rs
 }
 
 func (s *Server) callHandler(hf handlerFunc, req *pb.Request) {
-	/*hf, ok := handler[req.GetPath()]
-	if !ok || hf.paramType == nil {
-		log.Warn("not found hander", req.GetPath())
-		return
-	}*/
-
 	pptr := reflect.New(hf.paramType)
 	intef := pptr.Interface().(proto.Message)
 	if err := proto.Unmarshal(req.GetBody(), intef); err != nil {
