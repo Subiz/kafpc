@@ -3,32 +3,22 @@ package kafpc
 import (
 	"context"
 	"fmt"
-	"os"
-	"os/signal"
 	"reflect"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/Shopify/sarama"
-	cluster "github.com/bsm/sarama-cluster"
 	"github.com/golang/protobuf/proto"
 	"github.com/subiz/errors"
-	"github.com/subiz/executor"
 	"github.com/subiz/goutils/clock"
 	"github.com/subiz/goutils/log"
 	cmap "github.com/subiz/goutils/map"
 	"github.com/subiz/header"
+	cpb "github.com/subiz/header/common"
 	pb "github.com/subiz/header/kafpc"
-	"github.com/subiz/squasher"
+	"github.com/subiz/kafka"
 	"google.golang.org/grpc"
 )
-
-type Job struct {
-	*sarama.ConsumerMessage
-	req      *pb.Request
-	received int64
-}
 
 type handlerFunc struct {
 	paramType reflect.Type
@@ -36,74 +26,39 @@ type handlerFunc struct {
 	function  reflect.Value
 }
 
-type Consumer interface {
-	MarkOffset(msg *sarama.ConsumerMessage, metadata string)
-	CommitOffsets() error
-	Messages() <-chan *sarama.ConsumerMessage
-	Notifications() <-chan *cluster.Notification
-	Errors() <-chan error
-	Close() error
-}
-
 type Server struct {
 	*sync.RWMutex
-	service     string
-	hs          map[string]handlerFunc
-	consumer    Consumer
-	exec        *executor.Executor
-	sqmap       map[int32]*squasher.Squasher
-	clients     cmap.Map
-	squashercap uint
-	topic       string
-}
-
-func newHandlerConsumer(brokers []string, topic, csg string) *cluster.Consumer {
-	c := cluster.NewConfig()
-	c.Consumer.MaxWaitTime = 10000 * time.Millisecond
-	//c.Consumer.Offsets.Retention = 0
-	c.Consumer.Return.Errors = true
-	c.Consumer.Offsets.Initial = sarama.OffsetOldest
-	c.Group.Session.Timeout = 20 * time.Second
-	c.Group.Return.Notifications = true
-
-	for {
-		csm, err := cluster.NewConsumer(brokers, csg, []string{topic}, c)
-		if err == nil {
-			return csm
-		}
-
-		log.Warn(err, "will retry...")
-		time.Sleep(3 * time.Second)
-	}
+	service string
+	hs      map[string]handlerFunc
+	clients cmap.Map
+	topic   string
 }
 
 func Serve(service string, brokers []string, csg, topic string, handler interface{}) {
-	csm := newHandlerConsumer(brokers, topic, csg)
 	s := &Server{
-		topic:       topic,
-		service:     service,
-		RWMutex:     &sync.RWMutex{},
-		consumer:    csm,
-		squashercap: 1000 * 30 * 2,
-		clients:     cmap.New(32),
-		sqmap:       make(map[int32]*squasher.Squasher),
+		topic:   topic,
+		service: service,
+		RWMutex: &sync.RWMutex{},
+		clients: cmap.New(32),
 	}
-	s.exec = executor.New(1000, s.handleJob)
-	s.register(handler)
+
+	h := kafka.NewHandler(brokers, csg, topic, true)
+	hs := s.convertToHandlerFunc(s.service, handler)
+	h.Serve(hs, func(_ []int32) {})
+	/*
+		kafka.H{
+			"": func(_ *cpb.Context, val []byte) {
+				req := &pb.Request{}
+				if err := proto.Unmarshal(val, req); err != nil {
+					return
+				}
+				s.callHandler(s.hs, req)
+			},
+		}*/
 }
 
-func (s *Server) handleJob(_ string, job interface{}) {
-	mes := job.(Job)
-	s.Lock()
-	sq := s.createSqIfNotExist(mes.Partition, mes.Offset)
-	s.Unlock()
-
-	s.callHandler(s.hs, mes.req)
-	sq.Mark(mes.Offset)
-}
-
-func convertToHandlerFunc(prefix string, handler interface{}) map[string]handlerFunc {
-	rs := make(map[string]handlerFunc)
+func (s *Server) convertToHandlerFunc(prefix string, handler interface{}) kafka.H {
+	rs := kafka.H{}
 	handlerValue := reflect.ValueOf(handler)
 	h := reflect.TypeOf(handler)
 	for i := 0; i < h.NumMethod(); i++ {
@@ -118,59 +73,27 @@ func convertToHandlerFunc(prefix string, handler interface{}) map[string]handler
 				". The first parameter should be type of proto.Message, got " +
 				ptype.Name())
 		}
-		rs[prefix+method.Name] = handlerFunc{
-			paramType: ptype,
-			function:  method.Func,
-			firstArg:  handlerValue,
+		rs[prefix+method.Name] = func(_ *cpb.Context, val []byte) {
+			req := &pb.Request{}
+			if err := proto.Unmarshal(val, req); err != nil {
+				return
+			}
+			s.callHandler(handlerFunc{
+				paramType: ptype,
+				function:  method.Func,
+				firstArg:  handlerValue,
+			}, req)
 		}
 	}
 	return rs
 }
 
-func (s *Server) register(handler interface{}) {
-	s.hs = convertToHandlerFunc(s.service, handler)
-	endsignal := EndSignal()
-loop:
-	for {
-		select {
-		case msg, more := <-s.consumer.Messages():
-			if !more || msg == nil {
-				break loop
-			}
-
-			req := &pb.Request{}
-			err := proto.Unmarshal(msg.Value, req)
-			if err != nil {
-				log.Error(err)
-				continue
-			}
-
-			received := time.Now().UnixNano()
-			s.exec.Add(string(msg.Key), Job{msg, req, received})
-		case <-s.consumer.Notifications():
-		case err := <-s.consumer.Errors():
-			if err != nil {
-				log.Error("kafka error", err)
-			}
-		case <-endsignal:
-			break loop
-		}
-	}
-	s.consumer.Close()
-}
-
-func EndSignal() chan os.Signal {
-	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, os.Interrupt)
-	return signals
-}
-
-func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
-	hf, ok := handler[req.GetPath()]
+func (s *Server) callHandler(hf handlerFunc, req *pb.Request) {
+	/*hf, ok := handler[req.GetPath()]
 	if !ok || hf.paramType == nil {
 		log.Warn("not found hander", req.GetPath())
 		return
-	}
+	}*/
 
 	pptr := reflect.New(hf.paramType)
 	intef := pptr.Interface().(proto.Message)
@@ -235,38 +158,6 @@ func (s *Server) callHandler(handler map[string]handlerFunc, req *pb.Request) {
 		Path:      req.GetPath(),
 		Created:   time.Now().UnixNano(),
 	})
-}
-
-func (s *Server) commitloop(par int32, ofsc <-chan int64) {
-	changed, t := false, time.NewTicker(1*time.Second)
-	for {
-		select {
-		case o := <-ofsc:
-			changed = true
-			m := sarama.ConsumerMessage{
-				Topic:     s.topic,
-				Offset:    o,
-				Partition: par,
-			}
-			s.consumer.MarkOffset(&m, "")
-		case <-t.C:
-			if changed {
-				s.consumer.CommitOffsets()
-				changed = false
-			}
-		}
-	}
-}
-
-func (s *Server) createSqIfNotExist(par int32, offset int64) *squasher.Squasher {
-	if sq := s.sqmap[par]; sq != nil {
-		return sq
-	}
-
-	sq := squasher.NewSquasher(offset, int32(s.squashercap)) // 1M
-	s.sqmap[par] = sq
-	go s.commitloop(par, sq.Next())
-	return sq
 }
 
 func (s *Server) callClient(host string, resp *pb.Response) {
