@@ -2,6 +2,11 @@ package kafpc
 
 import (
 	"context"
+	"hash/crc32"
+	"net"
+	"strconv"
+	"time"
+
 	"github.com/golang/protobuf/proto"
 	"github.com/subiz/errors"
 	ugrpc "github.com/subiz/goutils/grpc"
@@ -10,10 +15,6 @@ import (
 	"github.com/subiz/idgen"
 	"github.com/subiz/kafka"
 	"google.golang.org/grpc"
-	"hash/crc32"
-	"net"
-	"strconv"
-	"time"
 )
 
 type Client struct {
@@ -39,14 +40,15 @@ func NewClient(service string, brokers []string, ip, topic string, port int) *Cl
 		donesend: donesend,
 		recvchan: recvchan,
 		host:     ip + ":" + strconv.Itoa(port),
-		size:     uint32(10000),
+		size:     uint32(1000),
 	}
 
 	for i := uint32(0); i < c.size; i++ {
-		sendchan[i] = make(chan Message)
-		recvchan[i] = make(chan *pb.Response)
-		donesend[i] = make(chan bool)
+		sendchan[i] = make(chan Message, 100)
+		recvchan[i] = make(chan *pb.Response, 100)
+		donesend[i] = make(chan bool, 100)
 	}
+
 	go c.runRecv()
 	c.runSend()
 	return c
